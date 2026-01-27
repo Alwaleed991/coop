@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PostResource;
 
 class PostController extends Controller
 {
@@ -14,8 +15,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        dd("this is me");
-        return Post::all();
+      
+        return PostResource::collection(Post::all()); // PostResource::collection(...) this is to applay the to array logic
+                                                      // Multiple items →PostResource::collection($posts) , Single item → new PostResource($post)
     }
 
     /**
@@ -39,7 +41,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return  new PostResource($post);
     }
 
     /**
