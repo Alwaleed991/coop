@@ -28,7 +28,7 @@ class PostTest extends TestCase
         $res->assertJsonCount(2,'data');
         $res->assertJsonStructure([
             'data'=>[
-                ['title', 'body']
+                ['id' ,'user_id' ,'title', 'body']
             ]
         ]);
     }
@@ -47,12 +47,14 @@ class PostTest extends TestCase
         $res->assertOk();
         $res->assertJsonStructure([
             'data'=>[
-                'title', 'body'
+                'id' ,'user_id', 'title', 'body' 
             ]
         ]);
 
         $res->assertJson([
             'data'=>[
+                'id' => $post->id,
+                'user_id' => $user->id,
                 'title'=> $post->title,
                 'body'=>$post->body
             ]

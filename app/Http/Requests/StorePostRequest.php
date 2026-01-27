@@ -11,7 +11,10 @@ class StorePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // “Can this user make this request at all?”	authorize() in FormRequest
+        // “Can this user do this action on THIS resource?”	Policy
+        // $this refer to the req
+        return true;
     }
 
     /**
@@ -22,7 +25,8 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => ['required', 'string', 'max:255'],
+            'body' => ['required', 'string', 'max:255']
         ];
     }
 }

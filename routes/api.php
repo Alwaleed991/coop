@@ -11,7 +11,7 @@ Route::get('/user', function (Request $request) {
 
 Route::prefix('v1')->group(function(){
     Route::get('/posts',[PostController::class, 'index']);
-    Route::post('/posts',[PostController::class, 'store']);
+    Route::post('/posts',[PostController::class, 'store'])->middleware('auth:sanctum');
     Route::get('/posts/{post}',[PostController::class, 'show']);
     Route::patch('/posts/{post}',[PostController::class, 'update']);
     Route::delete('/posts/{post}',[PostController::class, 'destroy']);
@@ -23,7 +23,7 @@ Route::prefix('v1')->group(function(){
 
 
 
-
+// if the req pass middleware('auth:sanctum') then the user will be add to the req and you can access it by $request->user()->id;
 // GET    /api/v1/tasks
 // POST   /api/v1/tasks
 // GET    /api/v1/tasks/{task}
