@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\LoginController;
+use App\Http\Controllers\Api\V1\LogoutController;
 use App\Http\Controllers\Api\V1\PostController;
 use App\Http\Controllers\Api\V1\RegisterController;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ Route::prefix('v1')->group(function(){
     Route::post('/login', LoginController::class);
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout',LogoutController::class);
         Route::get('/posts',[PostController::class, 'index']);
         Route::post('/posts',[PostController::class, 'store']);
         Route::get('/posts/{post}',[PostController::class, 'show']);
