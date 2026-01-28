@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\LoginController;
 use App\Http\Controllers\Api\V1\PostController;
+use App\Http\Controllers\Api\V1\RegisterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,7 @@ Route::get('/user', function (Request $request) {
 
 
 Route::prefix('v1')->group(function(){
+    Route::post('/register', RegisterController::class);
     Route::post('/login', LoginController::class);
 
     Route::middleware('auth:sanctum')->group(function () {
