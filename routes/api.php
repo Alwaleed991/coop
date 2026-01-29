@@ -24,8 +24,8 @@ Route::prefix('v1')->group(function(){
         Route::get('/posts/{post}',[PostController::class, 'show']);
         Route::patch('/posts/{post}',[PostController::class, 'update']);
         Route::delete('/posts/{post}',[PostController::class, 'destroy']);
-        // Route::get('/posts/{post}/comments',[PostController::class, 'postComments'] );
-        Route::post('/comments',[CommentController::class, 'store']);
+        Route::get('/posts/{post}/comments',[CommentController::class, 'postComments'] );
+        Route::post('/posts/{post}/comments',[CommentController::class, 'store']);
         Route::patch('/comments/{comment}',[CommentController::class, 'update']);
         Route::delete('/comments/{comment}',[CommentController::class, 'destroy']);
     });
