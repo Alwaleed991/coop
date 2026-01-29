@@ -22,12 +22,12 @@ Route::prefix('v1')->group(function(){
         Route::get('/posts',[PostController::class, 'index']);
         Route::post('/posts',[PostController::class, 'store']);
         Route::get('/posts/{post}',[PostController::class, 'show']);
-        Route::patch('/posts/{post}',[PostController::class, 'update']);
-        Route::delete('/posts/{post}',[PostController::class, 'destroy']);
+        Route::patch('/posts/{post}',[PostController::class, 'update'])->can('update','post'); // the policy will be exicuted after the middleware('auth:sanctum')
+        Route::delete('/posts/{post}',[PostController::class, 'destroy'])->can('delete','post');
         Route::get('/posts/{post}/comments',[CommentController::class, 'postComments'] );
         Route::post('/posts/{post}/comments',[CommentController::class, 'store']);
-        Route::patch('/comments/{comment}',[CommentController::class, 'update']);
-        Route::delete('/comments/{comment}',[CommentController::class, 'destroy']);
+        Route::patch('/comments/{comment}',[CommentController::class, 'update'])->can('update','comment');
+        Route::delete('/comments/{comment}',[CommentController::class, 'destroy'])->can('delete','comment');
     });
     
 });
