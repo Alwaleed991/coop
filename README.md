@@ -15,6 +15,7 @@ DB_PASSWORD=your_password
 4- php artisan migrate:fresh --seed
 5- Start the server in laragon, docker desktop, Xamp, etc ... 
 6- the api will be avalable on this url http://localhost:8000/api/v1
+
 ---------------------------------------------------------------------------------------------------------
 Second, Authentication Approach
 
@@ -27,6 +28,7 @@ steps:
 4- The token is sent with each request using Authorization header 
 
 Note/ all api end-points are private and required authentication
+
 ---------------------------------------------------------------------------------------------------------
 Third, Database Structure
 
@@ -48,6 +50,7 @@ One Post can have many Comments
 
 Note/foreign keys and cascade delete rules are used to maintain data integrity.
 Note/the ERD diagram is included in the /docs directory.
+
 ---------------------------------------------------------------------------------------------------------
 forth, Assumptions
 
