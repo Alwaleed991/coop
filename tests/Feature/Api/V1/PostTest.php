@@ -119,6 +119,54 @@ it('does not allows user to show single post that does not exist', function () {
 
     test()->withHeader('Authorization', 'bearer '.$token)->getJson('/api/v1/posts/X')
     ->assertStatus(404);
+});
+
+it('allows user to update post that belong to him', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    $posts = Post::factory(3)->create([
+        'user_id'=>$user->id
+    ]);
+
+    test()->withHeader('Authorization', 'bearer '.$token)->patchJson('/api/v1/posts/'.$posts[1]->id,[
+        "title"=>"how to get job in USA",   
+        "body"=> "etc..."
+    ])
+    ->assertStatus(200)
+    ->assertJsonStructure([
+        'message',
+        'data'=> [
+            'id', 'title', 'body','user_id'
+        ]
+    ]);
+});
+
+it('does not allows user to update post that does not belong to him', function () {
+    $firstUser = User::factory()->create();
+    $secondUser = User::factory()->create();
+    $token = $firstUser->createToken('auth_token')->plainTextToken;
+
+    $posts = Post::factory(3)->create([
+        'user_id'=>$secondUser->id
+    ]);
+
+    test()->withHeader('Authorization', 'bearer '.$token)->patchJson('/api/v1/posts/'.$posts[1]->id,[
+        "title"=>"how to get job in USA",   
+        "body"=> "etc..."
+    ])
+    ->assertStatus(403);
+});
+
+it('does not allows user to update post that does not exist', function () {
+    $user = User::factory()->create();
     
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    test()->withHeader('Authorization', 'bearer '.$token)->patchJson('/api/v1/posts/X',[
+        "title"=>"how to get job in USA",   
+        "body"=> "etc..."
+    ])
+    ->assertStatus(404);
 });
 
