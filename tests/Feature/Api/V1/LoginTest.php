@@ -10,6 +10,7 @@ uses(TestCase::class, RefreshDatabase::class);
 it('allows user to login and receive token', function () {
     $user = User::factory()->create();
 
+    // ENHANCE: you can use postJson method without test()
     test()->postJson('/api/v1/login', [
         'email' => $user->email,
         'password' => 'password',
