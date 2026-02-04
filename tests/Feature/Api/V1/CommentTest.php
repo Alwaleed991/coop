@@ -5,6 +5,8 @@ use App\Models\Post;
 use App\Models\User;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
+// FIX: since this is used in all files, it's better to have it applied globally (find how)
 uses(TestCase::class, RefreshDatabase::class);
 
 
@@ -22,6 +24,8 @@ it('allows user to lists comments for one post successfully', function () {
         'post_id'=> $post->id
     ]);
 
+    // FIX: there are simpler helper methods to use to add the bearer token, use it instead 
+    // FIX: it's always better to use the route names not the urls, because urls can be updated at any time
     test()->withHeader('Authorization', 'bearer '.$token)->getJson('/api/v1/posts/'.$post->id.'/comments')
     ->assertStatus(200)
     ->assertJsonCount(5,'data')
