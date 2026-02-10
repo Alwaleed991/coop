@@ -17,6 +17,7 @@ Route::prefix('v1')->group(function(){
     Route::post('/register', RegisterController::class);
     Route::post('/login', LoginController::class);
 
+    // ENHANCE: use api resources
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout',LogoutController::class);
         Route::get('/posts',[PostController::class, 'index']);
