@@ -7,9 +7,7 @@
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-      <!-- Changed: form now uses @submit.prevent and calls handleLogin -->
       <form @submit.prevent="handleLogin" class="space-y-6">
-        <!-- Email input - added v-model to bind data -->
         <div>
           <label for="email" class="block text-sm/6 font-medium text-gray-900">Email address</label>
           <div class="mt-2">
@@ -23,7 +21,6 @@
           </div>
         </div>
 
-        <!-- Password input - added v-model to bind data -->
         <div>
           <div class="flex items-center justify-between">
             <label for="password" class="block text-sm/6 font-medium text-gray-900">Password</label>
@@ -39,13 +36,10 @@
           </div>
         </div>
 
-        <!-- Error message (shows when login fails) -->
         <div v-if="error" class="rounded-md bg-red-50 p-4">
           <p class="text-sm text-red-800">{{ error }}</p>
         </div>
 
-        <!-- Submit button - disabled when loading -->
-        <!-- if the disabled is false you can click the buttton -->
         <div>
           <button
             type="submit"
@@ -71,20 +65,18 @@ export default {
   name: 'Login',
   data() {
     return {
-      email: '', // Stores the email input
-      password: '', // Stores the password input
-      error: '', // Stores error message if login fails
-      loading: false, // Shows loading state so that the user does not click meleon time
+      email: '', 
+      password: '', 
+      error: '',
+      loading: false, 
     }
   },
   methods: {
     async handleLogin() {
-      // Clear any previous error
       this.error = ''
       this.loading = true
 
       try {
-        // Call your Laravel API login endpoint
         const response = await fetch('http://coop.test/api/v1/login', {
           method: 'POST',
           headers: {
@@ -100,21 +92,15 @@ export default {
         const data = await response.json()
 
         if (response.ok) {
-          // Login successful!
-          // Save the token to localStorage
           localStorage.setItem('token', data.token)
 
-          // Save user info (name, role, etc) - optional
           localStorage.setItem('user', JSON.stringify(data.user))
 
-          // Redirect to posts page (we'll create this later)
           this.$router.push('/')
         } else {
-          // Login failed - show error message
-          this.error = data.message // we can delete this 'Invalid email or password'
+          this.error = data.message 
         }
       } catch (err) {
-        // Network error or other issue
         this.error = 'Network error. Please check the backend and try again.'
         console.error('Login error:', err)
       } finally {
