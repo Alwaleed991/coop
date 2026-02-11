@@ -7,6 +7,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PostResource;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -37,6 +38,11 @@ class PostController extends Controller
             'data' => new PostResource($post),
             ], 201);    
             
+    }
+
+    public function usersPosts(User $user){
+        $posts = $user->posts;
+        return PostResource::collection($posts);
     }
 
     /**

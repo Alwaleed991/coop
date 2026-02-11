@@ -21,6 +21,9 @@ Route::prefix('v1')->group(function(){
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout',LogoutController::class);
         Route::get('/posts',[PostController::class, 'index']);
+        
+        Route::get('/users/{user}/posts', [PostController::class, 'usersPosts']);
+
         Route::post('/posts',[PostController::class, 'store']);
         Route::get('/posts/{post}',[PostController::class, 'show']);
         Route::patch('/posts/{post}',[PostController::class, 'update'])->can('update','post'); // the policy will be exicuted after the middleware('auth:sanctum')
