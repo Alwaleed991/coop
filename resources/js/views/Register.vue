@@ -80,7 +80,7 @@
       </form>
       <p class="mt-6 text-center text-sm text-gray-500">
         Alrady have an account?
-        <router-link to="/login" class="font-semibold text-indigo-600 hover:text-indigo-500">
+        <router-link :to="{ name: 'login' }" class="font-semibold text-indigo-600 hover:text-indigo-500">
           Log in
         </router-link>
       </p>
@@ -133,7 +133,7 @@ export default {
           localStorage.setItem('user', JSON.stringify(data.user))
 
          
-          this.$router.push('/')
+          this.$router.push({ name: 'home' })
         } else {
           
           this.error = data.message

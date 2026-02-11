@@ -19,6 +19,8 @@ class PostResource extends JsonResource
             'title'      => $this->title,
             'body'       => $this->body,
             'user_id'    => $this->user_id,
+            'author'     => $this->user->name,
+            'created_at' => $this->created_at
         ];
     }
 }

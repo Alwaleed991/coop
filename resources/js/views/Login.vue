@@ -52,7 +52,7 @@
       </form>
       <p class="mt-6 text-center text-sm text-gray-500">
         Don't have an account?
-        <router-link to="/register" class="font-semibold text-indigo-600 hover:text-indigo-500">
+        <router-link :to="{ name: 'register' }" class="font-semibold text-indigo-600 hover:text-indigo-500">
           Register
         </router-link>
       </p>
@@ -96,7 +96,7 @@ export default {
 
           localStorage.setItem('user', JSON.stringify(data.user))
 
-          this.$router.push('/')
+          this.$router.push({ name: 'home' })
         } else {
           this.error = data.message 
         }
