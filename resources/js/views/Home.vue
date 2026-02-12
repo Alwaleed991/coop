@@ -13,6 +13,13 @@
             <p class="text-sm text-green-800 mt-2">{{ successMessage }}</p>
         </div>
 
+        <div
+            v-else-if="error"
+            class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
+        >
+            <p class="text-red-800">{{ error }}</p>
+        </div>
+
         <button
             @click="showForm = !showForm"
             :class="{
@@ -29,7 +36,12 @@
         </div>
 
         <div>
-            <PostCard v-for="post in posts" :key="post.id" :post="post" />
+            <PostCard
+                v-for="post in posts"
+                :key="post.id"
+                :post="post"
+                @click="goToPostDetails(post.id)"
+            />
         </div>
     </AppLayout>
 </template>
@@ -57,17 +69,18 @@ export default {
         };
     },
     mounted() {
-        this.handleUserPosts();
+        this.fetchUserPosts();
     },
     methods: {
         handlePostCreated(data) {
             this.successMessage = data.message;
             this.showForm = false;
+            this.fetchUserPosts() //to refresh the list!
             setTimeout(() => {
                 this.successMessage = "";
             }, 3000);
         },
-        async handleUserPosts() {
+        async fetchUserPosts() {
             this.loading = true;
             this.error = "";
 
@@ -102,6 +115,9 @@ export default {
             } finally {
                 this.loading = false;
             }
+        },
+        goToPostDetails(postId) {
+            this.$router.push({ name: "post-details", params: { id: postId } });
         },
     },
 };

@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
+import Login from '@/views/Login.vue'
 import Home from '@/views/Home.vue'
 import Register from '@/views/Register.vue'
-import PostsList from '../views/PostsList.vue'
+import PostsList from '@/views/PostsList.vue'
+import PostDetails from '@/views/PostDetails.vue'
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/posts',
       name: 'posts',
       component: PostsList,
+    },
+    {
+      path: '/posts/:id',
+      name: 'post-details',
+      component: PostDetails,
     },
   ],
 })
