@@ -1,5 +1,4 @@
 <template>
-
     <form @submit.prevent="handleSubmit">
         <div class="space-y-12">
             <div class="border-b border-gray-900/10 pb-12">
@@ -103,7 +102,6 @@ export default {
             body: this.post?.body || "",
             loading: false,
             error: "",
-            successMessage: ""
         };
     },
     methods: {

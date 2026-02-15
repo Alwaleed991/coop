@@ -1,4 +1,3 @@
-
 <template>
     <AppLayout>
         <h1 class="text-3xl font-bold text-gray-900 mb-4">Posts</h1>
@@ -16,7 +15,6 @@
             <p class="text-gray-600">Loading posts...</p>
         </div>
 
-        <!-- Error state -->
         <div
             v-else-if="error"
             class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
@@ -24,12 +22,15 @@
             <p class="text-red-800">{{ error }}</p>
         </div>
 
-        <!-- Posts list - FIXED: v-for to loop, :post instead of :posts -->
         <div v-else>
-            <PostCard v-for="post in posts" :key="post.id" :post="post" />
+            <PostCard
+                v-for="post in posts"
+                :key="post.id"
+                :post="post"
+                @click="goToPostDetails(post.id)"
+            />
         </div>
 
-        <!-- Empty state -->
         <div v-if="!loading && posts.length === 0" class="text-center py-8">
             <p class="text-gray-600">No posts yet!</p>
         </div>
@@ -86,6 +87,9 @@ export default {
             } finally {
                 this.loading = false;
             }
+        },
+        goToPostDetails(postId) {
+            this.$router.push({ name: "post-details", params: { id: postId } });
         },
     },
 };
