@@ -3,17 +3,26 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-4">Post Details</h1>
 
         <!-- Updated welcome message - more generic -->
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 class="text-xl font-semibold mb-2">
-                {{ isMyPost ? "Your Post" : "Post by " + post.author }}
-            </h2>
-            <p class="text-gray-600">
-                {{
-                    isMyPost
-                        ? "Here you can view, edit, and delete your post."
-                        : "View this post and leave a comment below."
-                }}
-            </p>
+        <div class="bg-white rounded-lg shadow p-6 mb-6 flex justify-between">
+            <div>
+                <h2 class="text-xl font-semibold mb-2">
+                    {{ isMyPost ? "Your Post" : "Post by " + post.author }}
+                </h2>
+                <p class="text-gray-600">
+                    {{
+                        isMyPost
+                            ? "Here you can view, edit, and delete your post."
+                            : "View this post and leave a comment below. Please if you note any thing suspesues please dont hasitate to Report the Post"
+                    }}
+                </p>
+            </div>
+
+            <button
+                class="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                @click="goToReportCreate"
+            >
+                Report
+            </button>
         </div>
 
         <!-- Error message -->
@@ -83,7 +92,6 @@
         <div v-if="comments.length === 0" class="text-center py-8">
             <p class="text-gray-600">No Comments yet!</p>
         </div>
-
     </AppLayout>
 </template>
 
@@ -278,6 +286,9 @@ export default {
                 this.successMessage = "";
             }, 3000);
         },
+        async goToReportCreate(){
+             this.$router.push({ name: "report-form", params: { type:"Post" , id: this.post.id } });
+        }
     },
 };
 </script>

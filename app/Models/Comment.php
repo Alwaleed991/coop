@@ -10,11 +10,18 @@ class Comment extends Model
     /** @use HasFactory<\Database\Factories\CommentFactory> */
     use HasFactory;
 
-    public function post(){
+    public function post()
+    {
         return $this->belongsTo(Post::class);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
+    }
+
+    public function reports() //a Comment can have MANY reports
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 }

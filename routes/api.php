@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\LoginController;
 use App\Http\Controllers\Api\V1\LogoutController;
 use App\Http\Controllers\Api\V1\PostController;
 use App\Http\Controllers\Api\V1\RegisterController;
+use App\Http\Controllers\Api\V1\ReportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,27 +14,28 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::prefix('v1')->group(function(){
+Route::prefix('v1')->group(function () {
     Route::post('/register', RegisterController::class);
     Route::post('/login', LoginController::class);
 
     // ENHANCE: use api resources
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/logout',LogoutController::class);
-        Route::get('/posts',[PostController::class, 'index']);
-        
+        Route::post('/logout', LogoutController::class);
+        Route::get('/posts', [PostController::class, 'index']);
+
         Route::get('/users/{user}/posts', [PostController::class, 'usersPosts']);
 
-        Route::post('/posts',[PostController::class, 'store']);
-        Route::get('/posts/{post}',[PostController::class, 'show']);
-        Route::patch('/posts/{post}',[PostController::class, 'update'])->can('update','post'); // the policy will be exicuted after the middleware('auth:sanctum')
-        Route::delete('/posts/{post}',[PostController::class, 'destroy'])->can('delete','post');
-        Route::get('/posts/{post}/comments',[CommentController::class, 'postComments'] );
-        Route::post('/posts/{post}/comments',[CommentController::class, 'store']);
-        Route::patch('/comments/{comment}',[CommentController::class, 'update'])->can('update','comment');
-        Route::delete('/comments/{comment}',[CommentController::class, 'destroy'])->can('delete','comment');
+        Route::post('/posts', [PostController::class, 'store']);
+        Route::get('/posts/{post}', [PostController::class, 'show']);
+        Route::patch('/posts/{post}', [PostController::class, 'update'])->can('update', 'post'); // the policy will be exicuted after the middleware('auth:sanctum')
+        Route::delete('/posts/{post}', [PostController::class, 'destroy'])->can('delete', 'post');
+        Route::get('/posts/{post}/comments', [CommentController::class, 'postComments']);
+        Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
+        Route::patch('/comments/{comment}', [CommentController::class, 'update'])->can('update', 'comment');
+        Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->can('delete', 'comment');
+        Route::get('/reports', [ReportController::class, 'index']);
+        Route::post('/reports', [ReportController::class, 'store']);
     });
-    
 });
 
 
