@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\LogoutController;
 use App\Http\Controllers\Api\V1\PostController;
 use App\Http\Controllers\Api\V1\RegisterController;
 use App\Http\Controllers\Api\V1\ReportController;
+use App\Http\Controllers\Api\V1\SearchController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Report;
@@ -36,6 +37,7 @@ Route::prefix('v1')->group(function () {
         Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->can('delete', 'comment');
         Route::get('/reports', [ReportController::class, 'index'])->can('view', Report::class);
         Route::post('/reports', [ReportController::class, 'store']);
+        Route::post('/search', SearchController::class );
     });
 });
 

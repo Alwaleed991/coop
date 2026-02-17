@@ -11,6 +11,10 @@
             </p>
         </div>
 
+        <div class="mb-6">
+            <SearchBar @searchSuccess="fetchSearchPosts"/>
+        </div>
+
         <div v-if="loading" class="text-center py-8">
             <p class="text-gray-600">Loading posts...</p>
         </div>
@@ -40,12 +44,14 @@
 <script>
 import AppLayout from "@/components/AppLayout.vue";
 import PostCard from "@/components/PostCard.vue";
+import SearchBar from "@/components/SearchBar.vue";
 
 export default {
     name: "PostsList",
     components: {
         AppLayout,
         PostCard,
+        SearchBar,
     },
     data() {
         return {
@@ -55,10 +61,10 @@ export default {
         };
     },
     mounted() {
-        this.handlePosts();
+        this.fetchPosts();
     },
     methods: {
-        async handlePosts() {
+        async fetchPosts() {
             this.loading = true;
             this.error = "";
 
@@ -91,6 +97,9 @@ export default {
         goToPostDetails(postId) {
             this.$router.push({ name: "post-details", params: { id: postId } });
         },
+         async fetchSearchPosts(data){
+            this.posts = data.data
+         }
     },
 };
 </script>

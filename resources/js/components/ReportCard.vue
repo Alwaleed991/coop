@@ -1,6 +1,5 @@
 <template>
     <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mt-6 hover:shadow-lg transition">
-        <!-- Header -->
         <div class="flex justify-between items-start mb-4">
             <div>
                 <h3 class="text-lg font-bold text-gray-900">
@@ -28,7 +27,6 @@
             <span class="text-xs text-gray-500">{{ report.created_at }}</span>
         </div>
 
-        <!-- Reason -->
         <div class="mb-4">
             <p class="text-sm font-semibold text-gray-700 mb-1">Reason:</p>
             <p class="text-sm text-gray-600 italic">
@@ -36,7 +34,6 @@
             </p>
         </div>
 
-        <!-- Reporter -->
         <div class="mb-4">
             <p class="text-sm text-gray-700">
                 <span class="font-semibold">Reported by:</span>
@@ -44,7 +41,6 @@
             </p>
         </div>
 
-        <!-- Reportable -->
         <div class="mb-4 bg-gray-50 p-3 rounded">
             <p class="text-sm text-gray-700 mb-1">
                 <span class="font-semibold">Reported content:</span>
@@ -56,7 +52,6 @@
             </p>
         </div>
 
-        <!-- Actions -->
         <div class="flex gap-2">
             <button
                 class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
