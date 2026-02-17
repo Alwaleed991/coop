@@ -23,6 +23,7 @@
                             </router-link>
 
                             <router-link
+                                v-show="isAuthorized"
                                 :to="{ name: 'reports' }"
                                 class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
                             >
@@ -67,6 +68,11 @@ export default {
             this.user = JSON.parse(userJson);
         } else {
             this.$router.push({ name: "login" });
+        }
+    },
+    computed:{
+        isAuthorized(){
+           return this.user.role === 'admin' || this.user.role === 'moderator'
         }
     },
     methods: {

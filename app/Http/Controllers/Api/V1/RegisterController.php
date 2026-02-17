@@ -15,17 +15,18 @@ class RegisterController extends Controller
      */
     public function __invoke(RegisterRequest $request)
     {
-       $user = User::create($request->validated());
+
+        $attribute = $request->validated();
+        $attribute['role'] = "user"; // WHY IF I REMOVE THIS I DONT SEE THE ROLE ?? ASK SHARIF 
+        $user = User::create($attribute);  
 
         $tokenObject = $user->createToken('auth_token');
         $token = $tokenObject->plainTextToken;
 
-         return response()->json([
+        return response()->json([
             'message' => 'User registerd successfully',
             'user' => $user,
             'token' => $token
-            ], 201);
-
-
+        ], 201);
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\RegisterController;
 use App\Http\Controllers\Api\V1\ReportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Models\Report;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -33,7 +34,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
         Route::patch('/comments/{comment}', [CommentController::class, 'update'])->can('update', 'comment');
         Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->can('delete', 'comment');
-        Route::get('/reports', [ReportController::class, 'index']);
+        Route::get('/reports', [ReportController::class, 'index'])->can('view', Report::class);
         Route::post('/reports', [ReportController::class, 'store']);
     });
 });
