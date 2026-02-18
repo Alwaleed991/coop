@@ -18,7 +18,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        return PostResource::collection(Post::all()); // PostResource::collection(...) this is to applay the to array logic
+        return PostResource::collection(Post::latest()->paginate(5)); // PostResource::collection(...) this is to applay the to array logic
                                                       // Multiple items →PostResource::collection($posts) , Single item → new PostResource($post)
     }
 
@@ -41,7 +41,8 @@ class PostController extends Controller
     }
 
     public function usersPosts(User $user){
-        $posts = $user->posts;
+        
+        $posts = Post::where('user_id', $user->id)->latest()->paginate(5) ;
         return PostResource::collection($posts);
     }
 

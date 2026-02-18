@@ -43,6 +43,18 @@
                 @click="goToPostDetails(post.id)"
             />
         </div>
+
+
+         <div class="flex justify-center mt-6">
+                <vue-awesome-paginate
+                    :total-items="totalItems"
+                    :items-per-page="5"
+                    :max-pages-shown="5"
+                    v-model="currentPage"
+                    @click="fetchUserPosts" 
+                />
+            </div>
+
     </AppLayout>
 </template>
 
@@ -66,6 +78,8 @@ export default {
             loading: false,
             error: "",
             user: {},
+            totalItems: 0,
+            currentPage: 1
         };
     },
     mounted() {
@@ -80,9 +94,10 @@ export default {
                 this.successMessage = "";
             }, 3000);
         },
-        async fetchUserPosts() {
+        async fetchUserPosts(page = 1) {
             this.loading = true;
             this.error = "";
+
 
             try {
                 const token = localStorage.getItem("token");
@@ -91,7 +106,7 @@ export default {
                     this.user = JSON.parse(userJson);
                 }
                 const response = await fetch(
-                    `http://coop.test/api/v1/users/${this.user.id}/posts`,
+                    `http://coop.test/api/v1/users/${this.user.id}/posts?page=${page}`,
                     {
                         method: "GET",
                         headers: {
@@ -105,6 +120,7 @@ export default {
 
                 if (response.ok) {
                     this.posts = data.data;
+                    this.totalItems = data.meta.total
                 } else {
                     this.error = "Failed to load posts";
                 }
