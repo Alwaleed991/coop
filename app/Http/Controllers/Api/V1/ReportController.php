@@ -43,33 +43,9 @@ class ReportController extends Controller
 
         return response()->json([
             'message' => 'Report has been received successfully',
-            'data' => new ReportResource($report),
+            'data' => new ReportResource($report->load(['user', 'reportable.user'])),
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Report $report)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Report $report)
-    {
-        //
-    }
-
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Report $report)
-    {
-        //
-    }
+   
 }

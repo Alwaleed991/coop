@@ -14,10 +14,10 @@ class CommentController extends Controller
    
 
     public function postComments(Post $post){
-        $comments = $post->comments;
+        $comments = $post->comments()->latest()->get();
 
         return response()->json([
-            'data' => CommentResource::collection($comments),
+            'data' => CommentResource::collection($comments->load('user')),
             ], 200);
     }
 
@@ -35,7 +35,7 @@ class CommentController extends Controller
 
          return response()->json([
             'message' => 'comment created successfully',
-            'data' => new CommentResource($comment),
+            'data' => new CommentResource($comment->load('user')),
             ], 201);
 
     }
@@ -49,7 +49,7 @@ class CommentController extends Controller
         $comment->update($request->validated());
         return response()->json([
             'message' => 'comment updated successfully',
-            'data' => new CommentResource($comment),
+            'data' => new CommentResource($comment->load('user')),
             ], 200); 
     }
 

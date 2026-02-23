@@ -36,7 +36,7 @@
                 Filtering by:
                 <span
                     v-for="tag in selectedTags"
-                    class="inline-flex items-center gap-2 bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm"
+                    class="inline-flex items-center gap-2 bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm ml-2"
                 >
                     {{ tag.name }}
                     <button

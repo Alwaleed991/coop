@@ -19,7 +19,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        return PostResource::collection(Post::latest()->paginate(5)); // PostResource::collection(...) this is to applay the to array logic
+        return PostResource::collection(Post::with(['user', 'tags'])->latest()->paginate(5)); // PostResource::collection(...) this is to applay the to array logic
                                                       // Multiple items →PostResource::collection($posts) , Single item → new PostResource($post)
     }
 
@@ -49,14 +49,14 @@ class PostController extends Controller
         
         return response()->json([
             'message' => 'Post created successfully',
-            'post' => new PostResource($post->load('tags')),
+            'post' => new PostResource($post->load(['user', 'tags'])),
             ], 201);    
             
     }
 
     public function usersPosts(User $user){
         
-        $posts = Post::where('user_id', $user->id)->with('tags')->latest()->paginate(5) ;
+        $posts = Post::where('user_id', $user->id)->with(['user', 'tags'])->latest()->paginate(5) ;
         return PostResource::collection($posts);
     }
 
@@ -65,7 +65,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return new PostResource($post->load('tags'));
+        return new PostResource($post->load(['user', 'tags']));
     }
 
 
@@ -90,7 +90,7 @@ class PostController extends Controller
 
         return response()->json([
             'message' => 'Post updated successfully',
-            'post' => new PostResource($post->load('tags')),
+            'post' => new PostResource($post->load(['user', 'tags'])),
             ], 200);
         
     }

@@ -27,7 +27,7 @@ class TagController extends Controller
             $tag = Tag::where("id",$selectedTag["id"])->first();
             $filteredPosts = $filteredPosts->merge($tag->posts->load("tags"));
         }
-        $filteredPosts = $filteredPosts->unique('id'); // this for removing dublication 
+        $filteredPosts = $filteredPosts->unique('id'); // this for removing dublication, unique('id') is a Collection method only.
         return PostResource::collection($filteredPosts); // this is Regular Collection the load is not working here
     }
 }
