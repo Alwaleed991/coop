@@ -7,6 +7,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PostResource;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,19 +31,32 @@ class PostController extends Controller
     {
         $attributes = $request->validated();
         $userId = $request->user()->id;
-        $attributes['user_id'] = $userId;
-        $post = Post::create($attributes);
+        
+        
+        $post = Post::create([
+            'user_id' => $userId,
+            'title' => $attributes['title'],
+            'body' => $attributes['body']
+        ]);
 
+
+        $tags = $attributes['tags'];
+        
+        foreach($tags as $tag){
+            $post->attach_tags_to_post($tag['name']); 
+        }
+
+        
         return response()->json([
             'message' => 'Post created successfully',
-            'data' => new PostResource($post),
+            'post' => new PostResource($post->load('tags')),
             ], 201);    
             
     }
 
     public function usersPosts(User $user){
         
-        $posts = Post::where('user_id', $user->id)->latest()->paginate(5) ;
+        $posts = Post::where('user_id', $user->id)->with('tags')->latest()->paginate(5) ;
         return PostResource::collection($posts);
     }
 
@@ -51,7 +65,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return new PostResource($post);
+        return new PostResource($post->load('tags'));
     }
 
 
@@ -61,10 +75,22 @@ class PostController extends Controller
     public function update(UpdatePostRequest $request, Post $post)
     {
         
-        $post->update($request->validated());
+        $post->update([
+           'title' => $request->validated()['title'],
+           'body' => $request->validated()['body']
+        ]);
+
+        $names = [];
+
+        foreach($request->tags as $tag){
+            $names[] = $tag['name'];
+        }
+
+        $post->attach_updated_tags_to_post($names);
+
         return response()->json([
             'message' => 'Post updated successfully',
-            'data' => new PostResource($post),
+            'post' => new PostResource($post->load('tags')),
             ], 200);
         
     }

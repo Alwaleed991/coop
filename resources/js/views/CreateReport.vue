@@ -103,6 +103,7 @@ export default {
             reason: "",
             loading: false,
             error: "",
+            
         };
     },
     methods: {
@@ -135,7 +136,8 @@ export default {
 
                 if (response.ok) {
                     this.$router.push({
-                        name: "posts"
+                        name: "posts",
+                        query: { success: data.message },
                     });
                     this.category = "";
                     this.reason = "";

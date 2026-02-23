@@ -44,17 +44,15 @@
             />
         </div>
 
-
-         <div class="flex justify-center mt-6">
-                <vue-awesome-paginate
-                    :total-items="totalItems"
-                    :items-per-page="5"
-                    :max-pages-shown="5"
-                    v-model="currentPage"
-                    @click="fetchUserPosts" 
-                />
-            </div>
-
+        <div class="flex justify-center mt-6">
+            <vue-awesome-paginate
+                :total-items="totalItems"
+                :items-per-page="5"
+                :max-pages-shown="5"
+                v-model="currentPage"
+                @click="fetchUserPosts"
+            />
+        </div>
     </AppLayout>
 </template>
 
@@ -79,17 +77,24 @@ export default {
             error: "",
             user: {},
             totalItems: 0,
-            currentPage: 1
+            currentPage: 1,
         };
     },
     mounted() {
         this.fetchUserPosts();
+        if (this.$route.query.success) {
+            this.successMessage = this.$route.query.success;
+            setTimeout(() => {
+                this.$route.query.success = "";
+                this.successMessage = "";
+            }, 3000);
+        }
     },
     methods: {
         handlePostCreated(data) {
             this.successMessage = data.message;
             this.showForm = false;
-            this.fetchUserPosts() //to refresh the list!
+            this.fetchUserPosts(); //to refresh the list!
             setTimeout(() => {
                 this.successMessage = "";
             }, 3000);
@@ -97,7 +102,6 @@ export default {
         async fetchUserPosts(page = 1) {
             this.loading = true;
             this.error = "";
-
 
             try {
                 const token = localStorage.getItem("token");
@@ -120,7 +124,7 @@ export default {
 
                 if (response.ok) {
                     this.posts = data.data;
-                    this.totalItems = data.meta.total
+                    this.totalItems = data.meta.total;
                 } else {
                     this.error = "Failed to load posts";
                 }

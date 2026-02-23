@@ -1,6 +1,6 @@
 <template>
     <div
-        class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+        class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow mt-6"
     >
         <div class="flex items-start justify-between mb-3">
             <div class="flex items-center gap-2">
@@ -8,8 +8,8 @@
                     class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-semibold"
                 ></div>
                 <div>
-                    <p class="text-sm font-semibold text-gray-900">jone due</p>
-                    <p class="text-xs text-gray-500">2003/20</p>
+                    <p class="text-sm font-semibold text-gray-900">{{ comment.author }}</p>
+                    <p class="text-xs text-gray-500">{{ comment.created_at }}</p>
                 </div>
             </div>
 

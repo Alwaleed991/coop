@@ -20,7 +20,13 @@ class PostResource extends JsonResource
             'body'       => $this->body,
             'user_id'    => $this->user_id,
             'author'     => $this->user->name,
-            'created_at' => $this->created_at->toDateTimeString()
+            'created_at' => $this->created_at->toDateTimeString(),
+            'tags'       => $this->tags->map(function($tag){  // here the map return a collection
+                    return [
+                        'id' => $tag->id,
+                        'name' => $tag->name
+                    ];
+            })
         ];
     }
 }
