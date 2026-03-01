@@ -6,29 +6,34 @@ use App\Http\Controllers\Controller;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Http\Resources\PostResource;
+use App\Models\Post;
 
 class TagController extends Controller
 {
     public function index()
     {
         return response()->json([
-            'data' => Tag::all(['id','name']),
+            'data' => Tag::all(['id', 'name']),
         ], 200);
     }
 
-    public function filter(Request $request){
+    public function filter(Request $request)
+    {
         $request->validate([
             "selectedTags" => ["required", "array"]
         ]);
 
+        $tagIds = collect($request->selectedTags)->pluck('id');
 
-        $filteredPosts = collect();
-        foreach($request->selectedTags as $selectedTag){
-            $tag = Tag::where("id",$selectedTag["id"])->first();
-            $filteredPosts = $filteredPosts->merge($tag->posts->load("tags"));
-        }
-        $filteredPosts = $filteredPosts->unique('id'); // this for removing dublication, unique('id') is a Collection method only.
-        return PostResource::collection($filteredPosts); // this is Regular Collection the load is not working here
+        $posts = Post::whereHas('tags', function ($query) use ($tagIds) {
+            $query->whereIn('tags.id', $tagIds);
+        })
+            ->with(['user', 'tags'])
+            ->latest()
+            ->get();
+
+        // this for removing dublication, unique('id') is a Collection method only.
+        return PostResource::collection($posts); // this is Regular Collection the load is not working here
     }
 }
 
