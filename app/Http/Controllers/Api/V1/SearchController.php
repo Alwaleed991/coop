@@ -17,7 +17,7 @@ class SearchController extends Controller
        $request->validate([
             'keyWord' => ['required', 'string']
         ]);
-        $posts = Post::where('title', 'LIKE','%'.$request->keyWord.'%')->get();
+        $posts = Post::where('title', 'LIKE','%'.$request->keyWord.'%')->get(); // SQL enjection 
         return PostResource::collection($posts);
     }
 }

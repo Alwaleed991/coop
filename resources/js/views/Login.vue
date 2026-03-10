@@ -75,9 +75,9 @@ export default {
     async handleLogin() {
       this.error = ''
       this.loading = true
-
+// if your page was loaded from: http://localhost:8000/login When the browser sees: fetch('/api/v1/login') it automatically converts it to: http://localhost:8000/api/v1/login So the browser adds the host and port automatically. Example If the current page is: http://localhost:8000/login and you run: fetch('/api/v1/login') the browser sends the request to: http://localhost:8000/api/v1/login
       try {
-        const response = await fetch('http://coop.test/api/v1/login', {
+        const response = await fetch('/api/v1/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -110,3 +110,4 @@ export default {
   },
 }
 </script>
+

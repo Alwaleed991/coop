@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <AppLayout>
         <h1 class="text-3xl font-bold text-gray-900 mb-4">Post Details</h1>
 
@@ -148,7 +148,7 @@ export default {
             try {
                 const token = localStorage.getItem("token");
                 const response = await fetch(
-                    `http://coop.test/api/v1/posts/${postId}`,
+                    `/api/v1/posts/${postId}`,
                     {
                         method: "GET",
                         headers: {
@@ -185,7 +185,7 @@ export default {
             try {
                 const token = localStorage.getItem("token");
                 const response = await fetch(
-                    `http://coop.test/api/v1/posts/${this.post.id}`,
+                    `/api/v1/posts/${this.post.id}`,
                     {
                         method: "DELETE",
                         headers: {
@@ -219,7 +219,7 @@ export default {
             try {
                 const token = localStorage.getItem("token");
                 const response = await fetch(
-                    `http://coop.test/api/v1/posts/${postId}/comments`,
+                    `/api/v1/posts/${postId}/comments`,
                     {
                         method: "GET",
                         headers: {
@@ -252,7 +252,7 @@ export default {
             try {
                 const token = localStorage.getItem("token");
                 const response = await fetch(
-                    `http://coop.test/api/v1/comments/${commentId}`,
+                    `/api/v1/comments/${commentId}`,
                     {
                         method: "DELETE",
                         headers: {
@@ -292,3 +292,4 @@ export default {
     },
 };
 </script>
+

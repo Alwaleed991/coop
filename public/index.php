@@ -10,7 +10,7 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
     require $maintenance;
 }
 
-// Register the Composer autoloader...
+// This loads Composer's autoloader.  So now all Laravel classes become available. like this ones Illuminate\Http\Request Illuminate\Routing\Router App\Http\Controllers\PostController
 require __DIR__.'/../vendor/autoload.php';
 
 // Bootstrap Laravel and handle the request...

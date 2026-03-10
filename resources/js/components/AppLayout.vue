@@ -81,7 +81,7 @@ export default {
             try {
                 const token = localStorage.getItem("token");
 
-                const response = await fetch("http://coop.test/api/v1/logout", {
+                const response = await fetch("/api/v1/logout", {
                     method: "POST",
                     headers: {
                         Accept: "application/json",
@@ -112,3 +112,4 @@ export default {
     },
 };
 </script>
+

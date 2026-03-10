@@ -1,0 +1,170 @@
+services:
+
+  app:
+    build: .
+    # Build the image using the Dockerfile instuctions in this folder (AFAQ)
+    container_name: laravel_app
+    depends_on:
+      - mysql
+    volumes:
+      - .:/var/www
+    #  this will link your project folder (in the host machine) with /var/www inside container
+
+
+  mysql:
+    image: mysql:8
+    # Use the official MySQL image from Docker Hub
+    container_name: mysql_db
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: coop
+      MYSQL_USER: alwaleed
+      MYSQL_PASSWORD: Alwaleed1
+    volumes:
+      - mysql_data:/var/lib/mysql
+    # this volume is called MySQL persistent volume, the idea is similer but the still deffrent 
+    # What Is a MySQL Persistent Volume?
+    # A persistent volume means: the database data is saved outside the container So if the container stops, restarts, or is deleted: your data is NOT lost
+    # so we storing the the new data inside the container, and then we reflect it in the docker Docker storage.
+    # so if the laravel container send to the mysql container a new record to store it the mysql container will store it here /var/lib/mysql and then its will reflect it in the mysql_data (you can see the : its means map (or mount) a source location to a destination inside the container and this is the structure source:destination) which lives in the docker storage 
+
+  nginx:
+    image: nginx:latest
+    # Use the official Nginx web server image
+    container_name: nginx_server
+    ports:
+      - "8000:80"
+    depends_on:
+      - app
+    volumes:
+      - .:/var/www
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+  mysql_data:
+#     what is Nginx ? 
+#     Nginx is like Apache have the same role in a web architecture.
+#     Receiving HTTP requests from the browser and Forwarding requests to the application 
+# Browser → Web Server → Application → Database  --- this is the web architecture
+
+
+
+
+# What docker-compose.yml Actually Does
+
+# docker-compose.yml defines:
+
+# 1-what containers should run ? (create the instances)
+# This is defined under services.
+# Example:
+# services:
+#   app:
+#   mysql:
+#   nginx:
+# This means Docker should start three containers:
+
+
+# 2-what images they use
+# build: . --- this is costom image so we need to run the instuction to build and and use it 
+# image: mysql:8
+# image: nginx:latest
+
+
+# 3-what ports they expose
+
+# note this is how the architecture will be
+# Browser
+#    │
+#    ▼
+# Nginx container --- the port for the browser to reach the Nginx container is for example "8000:80" so the Nginx port is 80 and the browser will access it from 8000 like http://localhost:8000
+#    │
+#    ▼
+# Laravel container (PHP-FPM) 
+#    │
+#    ▼
+# MySQL container
+
+# NOTE Nginx container Laravel container (PHP-FPM) MySQL container these 3 containers are inside the the docker privait network but the brouser is outside the doocker privaite network so he can not talk to the Nginx container unless you expose a port so the port will be spisify for the Nginx container only cause its the only one how will talk to the brouser
+# NOTE Nginx container and the Laravel container (PHP-FPM) and MySQL container will talk via using their service names and internal ports. so the PHP-FPM port 9000 and the sql container will have port 3306 but all that happen internaly you dont need to expose it unless you want for example to talk to the sql container from the outside
+
+# 4 - what are the Volumes ? 
+# A volume is a way to share or store files (like the laravel files ) between the host machine (my msi laptop (where the docker is running)) and containers, or between containers and Docker storage (LIKE WE DID WITH MYSQL CONTAINER).
+# In simple terms: Volume = shared folder
+
+# ok but we did do COPY .. in the dockerfile why do i need the volumes ? 
+# 1️⃣ What COPY . . Does
+# When Docker builds the image:
+# COPY . .
+# means:
+# copy project files from host → into the image filesystem
+# Then the image contains your Laravel code:
+# Image
+# └ /var/www
+#    ├ app
+#    ├ routes
+#    ├ public
+#    └ ...
+# When a container starts, it uses those files.
+# So yes — the container already has the Laravel code.
+
+# 2️⃣ The Problem Without Volumes
+# Imagine this situation.
+# You change a file:
+# routes/web.php
+# on your computer.
+# The container will not see the change, because the code inside the container came from the image build.
+# To update it you would have to rebuild the image:
+
+# docker compose build
+# docker compose up
+# Every time you change code.
+# That would be extremely slow for development.
+# so when you add the volume like this: 
+# volumes:
+#   - .:/var/www
+# so when you edit the code:
+# routes/web.php
+# the container immediately sees it. No rebuild needed.
+
+# COPY → puts files inside the image
+# VOLUME → shares files between host and container
+
+# so now in our desine app + nginx containers now have access to the Laravel project files.
+# app is clear why becuse if we did a change we want it to reflect but what about Nignx ? why we incloud the volume in it ? 
+# Ans: Because Nginx must read the Laravel public folder to serve the website SO he need access to the project folder.
+
+
+# 5- what environment variables they have
+# First What Is an Environment Variable?
+# An environment variable is simply: a variable that stores configuration values for a program and the program reads it when its start
+# so When we set environment variables in Docker, we are setting them inside the Linux environment of the container, similar to how Windows has environment variables.
+# and we mainly need this for the mysql container because mysql when ever its run its need to read values like MYSQL_ROOT_PASSWORD MYSQL_DATABASE  MYSQL_USER MYSQL_PASSWORD
+
+# 6- dependency 
+# depends_on.
+# This tells Docker: Start some containers before others.
+
+# Why?
+# Because:
+# Laravel needs the database container
+# Nginx needs the Laravel container
+
+
+
+# So its main job is orchestrating containers.
+
+
+
+
+
+
+
+# If you need to access the testing container via the browser:
+
+# You add a new Nginx server with a different port (e.g., 8001), not the Laravel container itself. The test Laravel container still won’t expose a port to the host; it communicates internally with its Nginx server, just like the main app.
+
+# If you don’t need to access the testing container via the browser:
+
+# You do not expose any port for the testing container. The testing container can run internally, performing automated tests or other tasks without needing direct browser access.

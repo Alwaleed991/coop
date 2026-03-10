@@ -179,8 +179,8 @@ export default {
                 const token = localStorage.getItem("token");
 
                 const url = this.post
-                    ? `http://coop.test/api/v1/posts/${this.post.id}`
-                    : "http://coop.test/api/v1/posts";
+                    ? `/api/v1/posts/${this.post.id}`
+                    : "/api/v1/posts";
 
                 const method = this.post ? "PATCH" : "POST";
 
@@ -221,7 +221,7 @@ export default {
             try {
                 const token = localStorage.getItem("token");
 
-                const response = await fetch("http://coop.test/api/v1/tags", {
+                const response = await fetch("/api/v1/tags", {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -258,3 +258,4 @@ export default {
     },
 };
 </script>
+

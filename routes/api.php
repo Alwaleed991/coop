@@ -16,7 +16,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
+// All routes inside:routes/api.php automatically get this prefix: /api
 Route::prefix('v1')->group(function () {
     Route::post('/register', RegisterController::class);
     Route::post('/login', LoginController::class);

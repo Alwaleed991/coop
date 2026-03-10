@@ -110,7 +110,7 @@ export default {
                     this.user = JSON.parse(userJson);
                 }
                 const response = await fetch(
-                    `http://coop.test/api/v1/users/${this.user.id}/posts?page=${page}`,
+                    `/api/v1/users/${this.user.id}/posts?page=${page}`,
                     {
                         method: "GET",
                         headers: {
@@ -142,3 +142,4 @@ export default {
     },
 };
 </script>
+

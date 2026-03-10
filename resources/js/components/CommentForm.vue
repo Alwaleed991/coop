@@ -76,7 +76,7 @@ export default {
                 const token = localStorage.getItem("token");
 
                 const response = await fetch(
-                    `http://coop.test/api/v1/posts/${this.postId}/comments`,
+                    `/api/v1/posts/${this.postId}/comments`,
                     {
                         method: "POST",
                         headers: {
@@ -108,3 +108,4 @@ export default {
     },
 };
 </script>
+

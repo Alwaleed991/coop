@@ -51,7 +51,7 @@ export default {
             try {
                 const token = localStorage.getItem("token");
 
-                const response = await fetch("http://coop.test/api/v1/search", {
+                const response = await fetch("/api/v1/search", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -79,3 +79,4 @@ export default {
     },
 };
 </script>
+

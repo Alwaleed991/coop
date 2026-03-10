@@ -115,7 +115,7 @@ export default {
                 const token = localStorage.getItem("token");
 
                 const response = await fetch(
-                    "http://coop.test/api/v1/reports",
+                    "/api/v1/reports",
                     {
                         method: "POST",
                         headers: {
@@ -154,3 +154,4 @@ export default {
     },
 };
 </script>
+

@@ -13,3 +13,6 @@ app.use(router);
 app.use(VueAwesomePaginate);
 
 app.mount('#app');
+
+
+// window.location.pathname  ==> /login

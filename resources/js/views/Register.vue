@@ -109,7 +109,7 @@ export default {
 
       try {
       
-        const response = await fetch('http://coop.test/api/v1/register', {
+        const response = await fetch('/api/v1/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -149,3 +149,4 @@ export default {
   },
 }
 </script>
+

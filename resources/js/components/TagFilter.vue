@@ -103,7 +103,7 @@ export default {
             try {
                 const token = localStorage.getItem("token");
 
-                const response = await fetch("http://coop.test/api/v1/tags", {
+                const response = await fetch("/api/v1/tags", {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -127,7 +127,7 @@ export default {
             try {
                 const token = localStorage.getItem("token");
 
-                const response = await fetch("http://coop.test/api/v1/filter", {
+                const response = await fetch("/api/v1/filter", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -173,3 +173,4 @@ export default {
     },
 };
 </script>
+
