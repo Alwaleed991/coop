@@ -6,7 +6,7 @@
                     {{ post ? "Edit Post" : "Create New Post" }}
                 </h2>
                 <p class="mt-1 text-sm/6 text-gray-600">
-                    Please provide the Title and the Body of the post.
+                    Please provide the Title and the Body of the  .
                 </p>
 
                 <div
@@ -102,6 +102,9 @@
                         </span>
                     </div>
                 </div>
+
+                <p>add any attachment</p>
+
             </div>
         </div>
 
