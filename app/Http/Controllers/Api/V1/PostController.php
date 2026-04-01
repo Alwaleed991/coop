@@ -145,10 +145,14 @@ class PostController extends Controller
         DB::beginTransaction();
 
         try {
+
+            $path = $request->imageUrl->store('postsImages', 'public'); // this the path will be postsImages/randomBylaravel.png
+
             $post = Post::create([
                 'user_id' => $request->user()->id,
                 'title' => $request->title,
                 'body' => $request->body,
+                'imageUrl' => $path
             ]);
 
             $tagNames = collect($request->tags)->pluck('name')->toArray();
