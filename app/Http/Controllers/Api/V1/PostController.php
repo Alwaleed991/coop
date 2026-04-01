@@ -89,6 +89,57 @@ class PostController extends Controller
 
 
 
+    // public function store(StorePostRequest $request)
+    // {
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $post = Post::create([
+    //             'user_id' => $request->user()->id,
+    //             'title' => $request->title,
+    //             'body' => $request->body,
+    //         ]);
+
+
+    //         // Get all tag names
+    //         $tagNames = collect($request->tags)->pluck('name')->toArray(); // now here collect($request->tags) this will create collection of assositive array and we will pluck the name so it will create an collection of strings becouse name is string and then we will preform toArray() to return normal array 
+    //         // Find existing tags (ONE query)
+    //         $existingTags = Tag::whereIn('name', $tagNames)->get(); // where() -> SELECT * FROM tags WHERE name = 'Laravel' AND whereIn() -> SELECT * FROM tags WHERE name IN ('Laravel', 'PHP', 'Vue') and note the $existingTags will be a collection becuse we get them from the Tag::class
+    //         $existingTagNames = $existingTags->pluck('name')->toArray();
+
+    //         // Find new tag names
+    //         $newTagNames = array_diff($tagNames, $existingTagNames); //array_diff() finds items in the FIRST array that are NOT in the SECOND array!
+
+    //         // Create new tags
+    //         $newTags = collect();
+    //         foreach ($newTagNames as $tagName) {  // if the $newTagNames was empty this for loop will mot run
+    //             $tag = Tag::create(['name' => $tagName]);
+    //             $newTags->push($tag); // the push here is the way to append to collection 
+    //         }
+
+    //         // Combine and attach
+    //         $allTags = $existingTags->merge($newTags);
+    //         $post->tags()->attach($allTags->pluck('id'));
+
+
+    //         DB::commit();
+
+    //         return response()->json([
+    //             'message' => 'Post created successfully',
+    //             'post' => new PostResource($post->load('tags')),
+    //         ], 201);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+
+    //         return response()->json([
+    //             'message' => 'Failed to create your post. Please try again later.',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+
     public function store(StorePostRequest $request)
     {
         DB::beginTransaction();
@@ -100,27 +151,15 @@ class PostController extends Controller
                 'body' => $request->body,
             ]);
 
-            
-                // Get all tag names
-                $tagNames = collect($request->tags)->pluck('name')->toArray(); // now here collect($request->tags) this will create collection of assositive array and we will pluck the name so it will create an collection of strings becouse name is string and then we will preform toArray() to return normal array 
-                // Find existing tags (ONE query)
-                $existingTags = Tag::whereIn('name', $tagNames)->get(); // where() -> SELECT * FROM tags WHERE name = 'Laravel' AND whereIn() -> SELECT * FROM tags WHERE name IN ('Laravel', 'PHP', 'Vue') and note the $existingTags will be a collection becuse we get them from the Tag::class
-                $existingTagNames = $existingTags->pluck('name')->toArray();
+            $tagNames = collect($request->tags)->pluck('name')->toArray();
 
-                // Find new tag names
-                $newTagNames = array_diff($tagNames, $existingTagNames); //array_diff() finds items in the FIRST array that are NOT in the SECOND array!
+            Tag::insertOrIgnore(
+                collect($tagNames)->map(fn($name) => ['name' => $name])->toArray()
+            );
 
-                // Create new tags
-                $newTags = collect();
-                foreach ($newTagNames as $tagName) {  // if the $newTagNames was empty this for loop will mot run
-                    $tag = Tag::create(['name' => $tagName]);
-                    $newTags->push($tag); // the push here is the way to append to collection 
-                }
+            $tagIds = Tag::whereIn('name', $tagNames)->pluck('id');
 
-                // Combine and attach
-                $allTags = $existingTags->merge($newTags);
-                $post->tags()->attach($allTags->pluck('id'));
-            
+            $post->tags()->attach($tagIds);
 
             DB::commit();
 
@@ -137,6 +176,7 @@ class PostController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -157,11 +197,11 @@ class PostController extends Controller
 
             $newTagNames = array_diff($tagNames, $existingTagNames);
             $newTags = collect();
-            foreach($newTagNames as $tagName){
+            foreach ($newTagNames as $tagName) {
                 $tag = Tag::create(['name' => $tagName]);
                 $newTags->push($tag);
             }
-            
+
             $allTags = $newTags->merge($existingTags);
 
             $post->tags()->sync($allTags); // sync will go to the pvot table and replace the old tags with the new one so its perfect for update

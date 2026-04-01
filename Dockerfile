@@ -18,7 +18,7 @@ FROM php:8.3-fpm
 # It already contains:
 # Linux OS
 # PHP 8.3 installed
-# PHP-FPM server
+# PHP-FPM server ( which is like the waiter take the req from the nigex and pass to the laravel application and the res from laravel applicaton to the nigex, its the engine that run the laravel application and its live inside the app container and have port 9000 and you need to run it to work look at the docker-compose.yml) 
 # basic system tools
 
 # So instead of installing PHP manually, Docker already gives us a ready environment.
@@ -55,14 +55,33 @@ WORKDIR /var/www
 # so later php artisan migrate will be excuted inside /var/www
 
 RUN apt-get update && apt-get install -y git \
+    git \
+    curl \
+    unzip \
+    libzip-dev \
     && docker-php-ext-install pdo_mysql
 
 # here we are including the pdo_mysql in the image which is the database driver wich is responsable to talk to the mysql container. think of it like Api where the laravel contanier is the client and the mysql containeris the server
 
-COPY . .
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# this COPY will copies the Composer program into your container.
+# 1️⃣ --from=composer:2 this means Use another image called composer:2 this image already has Composer installed
+# 2️⃣ Source path /usr/bin/composer Inside the composer image, this is where the Composer executable lives.
+# 3️⃣ Destination path /usr/bin/composer Inside your PHP container, we put it in the same location.
+
+COPY . .
 # Copy the Laravel project files from the host machine into the container inside /var/www. this is been override now by .:/var/www becase we still in devolopment but in production the containers will not be able to talk to my localhost becuse In production, the containers run on the server, not on your laptop, so they cannot depend on your laptop files. so the  .:/var/www  will be useless and we need COPY . . to make the app container have the code and most important SELF CONTAINED
 
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
+# RUN = execute a command while building the image and save the result into the image So when you run docker build the RUN will do the commands here but docker compose up will not excute the RUN 
+# curl: Go to the internet and download the file from the given URL.
+# | (pipe): This symbol takes the output from the command on the left (curl ...) and feeds it as input to the command on the right (bash).
+# | bash -: Takes the downloaded script and immediately runs it using the bash shell. this downloaded file will just have instructions thats tell  apt-get install -y nodejs to pick the latest virson of node
+# apt-get install -y nodejs means Install THE WHOLE Node.js system (like node runtime, npm, libraries, etc (not like composer which binary file (one file) easy to copy)) permanently inside the image So later, when container runs: node -v already exist
+# note package manager is A tool that installs software for you like npm and composer AND ALSO apt-get for lenix system so this apt-get works like npm and its will install the node system in your container 
 CMD ["php-fpm"]
 
 
