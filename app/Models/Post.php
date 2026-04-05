@@ -32,6 +32,10 @@ class Post extends Model
         return $this->belongsToMany(Tag::class);
     }
 
+    public function images(){
+        return $this->hasMany(Image::class);
+    }
+
     public function attach_tags_to_post($name)
     {
         $tag = Tag::firstOrCreate([
@@ -50,4 +54,5 @@ class Post extends Model
 
         $this->tags()->sync($tags); // sync will go to the pvot table and replace the old tags with the new one so its perfect for update
     }
+
 }

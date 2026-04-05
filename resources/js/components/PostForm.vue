@@ -6,7 +6,7 @@
                     {{ post ? "Edit Post" : "Create New Post" }}
                 </h2>
                 <p class="mt-1 text-sm/6 text-gray-600">
-                    Please provide the Title and the Body of the  .
+                    Please provide the Title and the Body of the .
                 </p>
 
                 <div
@@ -103,8 +103,52 @@
                     </div>
                 </div>
 
-                <p>add any attachment</p>
+                <h3 class="text-base/7 font-semibold text-gray-900">Images</h3>
+                <p class="mt-1 text-sm/6 text-gray-600">
+                    Add Images to your post.
+                </p>
 
+                <div class="mt-6">
+                    <label
+                        for="File"
+                        class="flex flex-col items-center rounded border border-gray-300 p-4 text-gray-900 shadow-sm sm:p-6"
+                    >
+                        <svg
+                            fill="none"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="size-6"
+                        >
+                            <path
+                                d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m0-3-3-3m0 0-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75"
+                            ></path>
+                        </svg>
+
+                        <span class="mt-4 font-medium">
+                            Upload your image(s)
+                        </span>
+
+                        <span
+                            class="mt-2 inline-block rounded border border-gray-200 bg-gray-50 px-3 py-1.5 text-center text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-100"
+                        >
+                            Browse files
+                        </span>
+
+                        <input
+                            multiple=""
+                            type="file"
+                            id="File"
+                            ref="fileInput"
+                            class="sr-only"
+                            @change="addToSelectedFiles"
+                        />
+                    </label>
+                    FEAD BACK
+                    <ul v-show="selectedFiles.length > 0">
+                        <li v-for="file in selectedFiles"> {{file.name}} </li>
+                    </ul>
+
+                </div>
             </div>
         </div>
 
@@ -141,7 +185,7 @@ export default {
             body: this.post?.body || "",
             loading: false,
             error: "",
-
+            selectedFiles: [],
             keyStrokes: "",
             allTags: [],
             selectedTags: this.post?.tags || [],
@@ -161,14 +205,15 @@ export default {
                     .toLowerCase()
                     .startsWith(this.keyStrokes.toLowerCase()),
             );
-            
-            if(matchTags.length === 0){
-                return [{
-                    id: null,
-                    name:this.keyStrokes 
-                }];
-            }
-            else{
+
+            if (matchTags.length === 0) {
+                return [
+                    {
+                        id: null,
+                        name: this.keyStrokes,
+                    },
+                ];
+            } else {
                 return matchTags;
             }
         },
@@ -197,20 +242,50 @@ export default {
                     body: JSON.stringify({
                         title: this.title,
                         body: this.body,
-                        tags: this.selectedTags
+                        tags: this.selectedTags,
                     }),
                 });
 
                 const data = await response.json();
 
-                if (response.ok) {
-                    this.$emit("success", data);
-                    if (!this.post) {
-                        this.title = "";
-                        this.body = "";
-                    }
-                } else {
+                if (!response.ok) {
                     this.error = data.message || "Failed to save post";
+                } else {
+                    if (this.$refs.fileInput.files.length > 0) {
+                        const formData = new FormData();
+                        const filesArray = Array.from(this.$refs.fileInput.files);
+                        filesArray.forEach((file) => {
+                            formData.append("images[]", file);
+                        });
+
+                        const imagesResponse = await fetch(`/api/v1/posts/${data.post.id}/images`, {
+                            method: "POST",
+                            headers: {
+                                Accept: "application/json",
+                                Authorization: `Bearer ${token}`,
+                            },
+                            body: formData,
+                        });
+
+                        const imagesData = await imagesResponse.json();
+
+                        if (imagesResponse.ok) {
+                            this.$emit("success", data);
+                            if (!this.post) {
+                                this.title = "";
+                                this.body = "";
+                            }
+                        } else {
+                            //HERE WILL BE THE MANULAY ROLL BACK
+                            this.error = imagesData.message; // the data.message will be post has been safed correctly but we were not able to store your imgaes please try again later
+                        }
+                    } else {
+                        this.$emit("success", data);
+                        if (!this.post) {
+                            this.title = "";
+                            this.body = "";
+                        }
+                    }
                 }
             } catch (err) {
                 this.error = "Network error. Please try again.";
@@ -246,19 +321,24 @@ export default {
             }
         },
 
-        addToSelectedTags(tag){
-            if(this.selectedTags.find(t => t.id === tag.id )){
-                this.keyStrokes = ''
-                return
+        addToSelectedFiles(){
+            this.selectedFiles = Array.from(this.$refs.fileInput.files);
+        },
+
+        addToSelectedTags(tag) {
+            if (this.selectedTags.find((t) => t.id === tag.id)) {
+                this.keyStrokes = "";
+                return;
             }
 
-            this.keyStrokes = ''
+            this.keyStrokes = "";
             this.selectedTags = [tag, ...this.selectedTags];
         },
-        removeFromSelectedTags(tag){
-            this.selectedTags = this.selectedTags.filter(t => t.id !== tag.id)
-        }
+        removeFromSelectedTags(tag) {
+            this.selectedTags = this.selectedTags.filter(
+                (t) => t.id !== tag.id,
+            );
+        },
     },
 };
 </script>
-

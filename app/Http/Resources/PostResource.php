@@ -18,10 +18,15 @@ class PostResource extends JsonResource
             'id'         => $this->id,
             'title'      => $this->title,
             'body'       => $this->body,
-            'imageUrl'   => $this->imageUrl,
             'user_id'    => $this->user_id,
             'author'     => $this->user->name,
             'created_at' => $this->created_at->toDateTimeString(),
+            'images'     => $this->images->map(function($img){
+                return[
+                    'id' => $img->id,
+                    'imageUrl' => $img->imageUrl
+                ];
+            }),
             'tags'       => $this->tags->map(function($tag){  // here the map return a collection
                     return [
                         'id' => $tag->id,

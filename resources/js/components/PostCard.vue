@@ -5,8 +5,6 @@
         <p class="text-sm text-blue-700 mb-3">By {{ post.author }}</p>
         <p class="text-gray-900 mb-4">{{ post.body }}</p>
 
-        
-        
         <div class="flex gap-2">
             <span
                 v-for="tag in post.tags"
@@ -15,6 +13,16 @@
             >
                 {{ tag.name }}
             </span>
+        </div>
+
+        <div>
+            here the imgaes
+            <img
+                v-for="image in post.images"
+                :key="image.id"
+                :src="`http://localhost:8000/storage/${image.imageUrl}`"
+                alt=""
+            />
         </div>
     </div>
 </template>

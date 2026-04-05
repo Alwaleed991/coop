@@ -6,7 +6,9 @@ use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreImageRequest;
 use App\Http\Resources\PostResource;
+use App\Models\Image;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +21,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        return PostResource::collection(Post::with(['user', 'tags'])->latest()->paginate(5)); // PostResource::collection(...) this is to applay the to array logic
+        return PostResource::collection(Post::with(['user', 'tags', 'images'])->latest()->paginate(5)); // PostResource::collection(...) this is to applay the to array logic
         // Multiple items →PostResource::collection($posts) , Single item → new PostResource($post)
     }
 
@@ -145,14 +147,10 @@ class PostController extends Controller
         DB::beginTransaction();
 
         try {
-
-            $path = $request->imageUrl->store('postsImages', 'public'); // this the path will be postsImages/randomBylaravel.png
-
             $post = Post::create([
                 'user_id' => $request->user()->id,
                 'title' => $request->title,
-                'body' => $request->body,
-                'imageUrl' => $path
+                'body' => $request->body
             ]);
 
             $tagNames = collect($request->tags)->pluck('name')->toArray();
@@ -181,6 +179,24 @@ class PostController extends Controller
         }
     }
 
+    public function storeImages(StoreImageRequest $request, Post $post){
+        $images = $request->images;
+
+        foreach($images as $image){
+            $path = $image->store('postsImages', 'public'); // this the path will be postsImages/randomBylaravel.png
+            Image::create([
+                'imageUrl' => $path,
+                'post_id' => $post->id
+            ]);
+        }
+         return response()->json([
+                'message' => 'Post created successfully',
+                'post' => new PostResource($post->load('tags')),
+            ], 201);
+    
+
+
+    }
 
     /**
      * Update the specified resource in storage.
