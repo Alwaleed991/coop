@@ -8,6 +8,7 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreImageRequest;
 use App\Http\Resources\PostResource;
+use App\Jobs\SendPostCreatedEmail;
 use App\Models\Image;
 use App\Models\Tag;
 use App\Models\User;
@@ -162,6 +163,8 @@ class PostController extends Controller
             $tagIds = Tag::whereIn('name', $tagNames)->pluck('id');
 
             $post->tags()->attach($tagIds);
+
+            dispatch(new SendPostCreatedEmail($post,$request->user()->email));
 
             DB::commit();
 

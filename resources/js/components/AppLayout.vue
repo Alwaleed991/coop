@@ -22,6 +22,13 @@
                                 Posts
                             </router-link>
 
+                             <router-link
+                                :to="{ name: 'about' }"
+                                class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
+                            >
+                                About us
+                            </router-link>
+
                             <router-link
                                 v-show="isAuthorized"
                                 :to="{ name: 'reports' }"

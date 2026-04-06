@@ -6,6 +6,7 @@ import PostsList from '@/views/PostsList.vue'
 import PostDetails from '@/views/PostDetails.vue'
 import Report from '@/views/Report.vue'
 import CreateReport from '@/views/CreateReport.vue'
+import About from  '@/views/About.vue'
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -29,6 +30,11 @@ const router = createRouter({
       path: '/posts',
       name: 'posts',
       component: PostsList,
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: About,
     },
     {
       path: '/posts/:id',

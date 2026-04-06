@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CommentResource;
 use App\Models\Post;
+use App\Notifications\NewCommentNotification;
 
 class CommentController extends Controller
 {
@@ -32,6 +33,10 @@ class CommentController extends Controller
         $attributes['post_id'] = $post->id;
 
         $comment = Comment::create($attributes);
+
+        $post->user->notify(new NewCommentNotification($comment));
+
+
 
          return response()->json([
             'message' => 'comment created successfully',
