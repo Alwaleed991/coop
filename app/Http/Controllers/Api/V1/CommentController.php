@@ -37,6 +37,20 @@ class CommentController extends Controller
         $post->user->notify(new NewCommentNotification($comment));
 
 
+        //Exactly right! notify() fills all the columns actually, not just data. Let's see what each one gets filled:
+        // Column            Filled with  
+        // id                Auto generated UUID
+        // type              App\Notifications\NewCommentNotification
+        // notifiable_type   App\Models\User
+        // notifiable_id     the post owner's id
+        // data              the array from toDatabase() as JSON
+        // read_at           null (unread by default)
+        // created_at        current timestamp
+        // updated_at        current timestamp
+
+        // You are calling notify() on the User model instance ->user->. So Laravel looks at that user object and automatically knows:
+        // notifiable_type → the class of the object = App\Models\User
+        // notifiable_id → the id of that object = $post->user->id
 
          return response()->json([
             'message' => 'comment created successfully',
