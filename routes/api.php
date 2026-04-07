@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\PostController;
 use App\Http\Controllers\Api\V1\RegisterController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\TagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/tags', [TagController::class, 'index']);
         Route::post('/filter', [TagController::class, 'filter']);
         Route::get('/status', PlatformStatsController::class);
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::get('/notifications/count', [NotificationController::class, 'notificationsCount']);
+
     });
 });
 

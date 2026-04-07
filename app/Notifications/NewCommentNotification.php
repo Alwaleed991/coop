@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewCommentNotification extends Notification
+class NewCommentNotification extends Notification implements ShouldQueue //this is for the email ShouldQueue on the notification class, Laravel automatically Wraps the email notification in a job behind the scenes and throw it to the Queue — you don't need to manually create one with make:job.
 {
     use Queueable;
 
@@ -38,8 +38,8 @@ class NewCommentNotification extends Notification
         return (new MailMessage)
             ->subject('Someone commented on your post!')
             ->line('Dear '.$this->comment->post->user->name)
-            ->line('You have new comment by '. $this->comment->user->name .'on your post with title'. $this->comment->post->title.'.')
-            ->line('Please if you noticed any harmful content dont hesitate to report to us.')
+            ->line('You have new comment by '. $this->comment->user->name .' on your post with title "'. $this->comment->post->title.'".')
+            ->line('Please if you noticed any harmful content do not hesitate to report to us.')
             ->line('Thank you for using our application!');
     }
 

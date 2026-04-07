@@ -164,7 +164,6 @@ class PostController extends Controller
 
             $post->tags()->attach($tagIds);
 
-            dispatch(new SendPostCreatedEmail($post,$request->user()->email));
 
             DB::commit();
 

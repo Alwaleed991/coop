@@ -34,7 +34,8 @@ class CommentController extends Controller
 
         $comment = Comment::create($attributes);
 
-        $post->user->notify(new NewCommentNotification($comment));
+            $post->user->notify(new NewCommentNotification($comment));
+        
 
 
         //Exactly right! notify() fills all the columns actually, not just data. Let's see what each one gets filled:

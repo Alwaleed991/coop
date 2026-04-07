@@ -7,6 +7,7 @@ import PostDetails from '@/views/PostDetails.vue'
 import Report from '@/views/Report.vue'
 import CreateReport from '@/views/CreateReport.vue'
 import About from  '@/views/About.vue'
+import NotificationList from '@/views/NotificationList.vue'
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -51,6 +52,12 @@ const router = createRouter({
       name: 'report-form',
       component: CreateReport,
     },
+    {
+      path: '/notifications/:count',
+      name: 'Notification-List',
+      component: NotificationList,
+    }
+    
   ],
 })
 
