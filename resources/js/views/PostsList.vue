@@ -42,6 +42,7 @@
                 v-for="post in posts"
                 :key="post.id"
                 :post="post"
+                :type="'list'"
                 @click="goToPostDetails(post.id)"
             />
 

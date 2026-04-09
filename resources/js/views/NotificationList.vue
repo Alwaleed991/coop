@@ -44,11 +44,12 @@
                             >
                         </div>
                         <button
+                            @click="CrearAllNotifications"
                             class="text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
                         >
-                            Mark all as read
+                            Clear All Notifications
                         </button>
-                    </div >
+                    </div>
                     <NotificationCard
                         :notificationData="notificationData"
                     ></NotificationCard>
@@ -118,29 +119,32 @@ export default {
                 this.loading = false;
             }
         },
-        async markAllAsRead() {
+        async CrearAllNotifications() {
             this.error = "";
 
             try {
                 const token = localStorage.getItem("token");
 
-                const response = await fetch(`/api/v1/mark/read`, {
-                    method: "GET",
-                    headers: {
-                        Accept: "application/json",
-                        Authorization: `Bearer ${token}`,
+                const response = await fetch(
+                    `/api/v1/notifications/mark/read`,
+                    {
+                        method: "GET",
+                        headers: {
+                            Accept: "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
                     },
-                });
+                );
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    this.successMessage = data.message;
-                    setTimeout(() => {
-                        this.successMessage = "";
-                    }, 3000);
+                    this.$router.push({
+                        name: "home",
+                        query: { success: data.message },
+                    });
                 } else {
-                    this.error = "Failed to load Notifications";
+                    this.error = "Failed to clear the Notifications";
                 }
             } catch (err) {
                 this.error =

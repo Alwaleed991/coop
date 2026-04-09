@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes; 
 
 class Post extends Model
 {
     /** @use HasFactory<\Database\Factories\PostFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes; //The SoftDeletes trait makes delete() soft delete instead of hard delete and this one sets deleted_at so they they work togther, and adds Adds restore() method and forceDelete(), So your existing destroy() method which calls $post->delete() now automatically becomes a soft delete — and you'll add a separate forceDelete endpoint for permanent deletion.
 
 
     public function comments()

@@ -41,14 +41,43 @@
 
                     <div class="flex items-center gap-4">
                         <router-link
-                            :to="{ name: 'Notification-List', params: { count: this.notificationCount } }"
-                            class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
+                            :to="{ name: 'trash' }"
+                            class="px-3 py-2 rounded-md text-sm font-medium"
                         >
                             <button
-                                
                                 class="relative inline-flex items-center justify-center rounded-2xl w-12 h-12 bg-gray-200 hover:bg-gray-300 transition-colors duration-150 focus:outline-none active:scale-95"
                             >
-                                <!-- Bell icon -->
+                                <svg
+                                    class="w-5 h-5 text-gray-800 stroke-current"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path
+                                        d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"
+                                    />
+                                    <path d="M10 11v6" />
+                                    <path d="M14 11v6" />
+                                    <path
+                                        d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
+                                    />
+                                </svg>
+                            </button>
+                        </router-link>
+
+                        <router-link
+                            :to="{
+                                name: 'notification-list',
+                                params: { count: this.notificationCount },
+                            }"
+                            class="px-3 py-2 rounded-md text-sm font-medium"
+                        >
+                            <button
+                                class="relative inline-flex items-center justify-center rounded-2xl w-12 h-12 bg-gray-200 hover:bg-gray-300 transition-colors duration-150 focus:outline-none active:scale-95"
+                            >
                                 <svg
                                     class="w-5 h-5 text-gray-800 stroke-current"
                                     fill="none"
@@ -61,7 +90,6 @@
                                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                                 </svg>
 
-                                <!-- Badge -->
                                 <span
                                     class="absolute top-1 right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-medium px-1 border-2 border-white leading-none"
                                 >
@@ -98,7 +126,6 @@ export default {
             user: {},
             loading: false,
             notificationCount: 0,
-            
         };
     },
     mounted() {

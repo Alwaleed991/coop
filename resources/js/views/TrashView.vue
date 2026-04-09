@@ -1,9 +1,11 @@
 <template>
     <AppLayout>
-        <h1 class="text-3xl font-bold text-gray-900 mb-4">Dashboard</h1>
-        <div class="bg-white rounded-lg shadow p-6">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">Trash can</h1>
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
             <h2 class="text-xl font-semibold mb-2">Welcome back!</h2>
-            <p class="text-gray-600">You're successfully logged in.</p>
+            <p class="text-gray-600">
+                Here you can preminitly delete your posts or restore it.
+            </p>
         </div>
 
         <div
@@ -20,28 +22,15 @@
             <p class="text-red-800">{{ error }}</p>
         </div>
 
-        <button
-            @click="showForm = !showForm"
-            :class="{
-                'mt-6 mb-6 flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs': true,
-                'bg-red-600 hover:bg-red-700': showForm === true,
-                'bg-indigo-600 hover:bg-indigo-500': showForm === false,
-            }"
-        >
-            {{ showForm ? "Cancel" : "+ Create New Post" }}
-        </button>
-
-        <div v-if="showForm" class="bg-white rounded-lg shadow p-6 mb-6">
-            <PostForm @success="handlePostCreated" />
-        </div>
-
         <div>
             <PostCard
                 v-for="post in posts"
                 :key="post.id"
                 :post="post"
-                :type="'home'"
+                :type="'trash'"
                 @click="goToPostDetails(post.id)"
+                @restored="onPostRestored"
+                @deleted="onPostDeleted"
             />
         </div>
 
@@ -59,19 +48,16 @@
 
 <script>
 import AppLayout from "@/components/AppLayout.vue";
-import PostForm from "@/components/PostForm.vue";
 import PostCard from "@/components/PostCard.vue";
 
 export default {
-    name: "Home",
+    name: "Trash",
     components: {
         AppLayout,
-        PostForm,
         PostCard,
     },
     data() {
         return {
-            showForm: false,
             successMessage: "",
             posts: [],
             loading: false,
@@ -83,19 +69,18 @@ export default {
     },
     mounted() {
         this.fetchUserPosts();
-        if (this.$route.query.success) {
-            this.successMessage = this.$route.query.success;
-            setTimeout(() => {
-                this.$route.query.success = "";
-                this.successMessage = "";
-            }, 3000);
-        }
     },
     methods: {
-        handlePostCreated(data) {
-            this.successMessage = data.message;
-            this.showForm = false;
-            this.fetchUserPosts(); //to refresh the list!
+        onPostRestored({ postId, message }) {
+            this.posts = this.posts.filter((p) => p.id !== postId);
+            this.successMessage = message;
+            setTimeout(() => {
+                this.successMessage = "";
+            }, 3000);
+        },
+        onPostDeleted({ postId, message }) {
+            this.posts = this.posts.filter((p) => p.id !== postId);
+            this.successMessage = message;
             setTimeout(() => {
                 this.successMessage = "";
             }, 3000);
@@ -106,12 +91,8 @@ export default {
 
             try {
                 const token = localStorage.getItem("token");
-                const userJson = localStorage.getItem("user");
-                if (userJson) {
-                    this.user = JSON.parse(userJson);
-                }
                 const response = await fetch(
-                    `/api/v1/users/${this.user.id}/posts?page=${page}`,
+                    `/api/v1/posts/trashed?page=${page}`,
                     {
                         method: "GET",
                         headers: {
@@ -143,4 +124,3 @@ export default {
     },
 };
 </script>
-

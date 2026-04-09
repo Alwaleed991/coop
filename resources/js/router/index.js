@@ -8,6 +8,7 @@ import Report from '@/views/Report.vue'
 import CreateReport from '@/views/CreateReport.vue'
 import About from  '@/views/About.vue'
 import NotificationList from '@/views/NotificationList.vue'
+import TrashView from '@/views/TrashView.vue'
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -54,8 +55,13 @@ const router = createRouter({
     },
     {
       path: '/notifications/:count',
-      name: 'Notification-List',
+      name: 'notification-list',
       component: NotificationList,
+    },
+    {
+      path: '/trash',
+      name: 'trash',
+      component: TrashView,
     }
     
   ],

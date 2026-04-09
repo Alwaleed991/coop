@@ -31,7 +31,7 @@
 
 <script>
 export default {
-    name: "CommentCard",
+    name: "NotificationCard",
     props: {
         notificationData: {
             type: Array,

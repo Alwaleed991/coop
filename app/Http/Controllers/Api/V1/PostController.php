@@ -14,6 +14,8 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+
 
 class PostController extends Controller
 {
@@ -181,23 +183,21 @@ class PostController extends Controller
         }
     }
 
-    public function storeImages(StoreImageRequest $request, Post $post){
+    public function storeImages(StoreImageRequest $request, Post $post)
+    {
         $images = $request->images;
 
-        foreach($images as $image){
+        foreach ($images as $image) {
             $path = $image->store('postsImages', 'public'); // this the path will be postsImages/randomBylaravel.png
             Image::create([
                 'imageUrl' => $path,
                 'post_id' => $post->id
             ]);
         }
-         return response()->json([
-                'message' => 'Post created successfully',
-                'post' => new PostResource($post->load('tags')),
-            ], 201);
-    
-
-
+        return response()->json([
+            'message' => 'Post created successfully',
+            'post' => new PostResource($post->load('tags')),
+        ], 201);
     }
 
     /**
@@ -248,9 +248,33 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        // the delete() set the deleted_at to time stamp
         $post->delete();
         return response()->json([
-            'message' => 'Post deleted successfully'
+            'message' => 'Post moved to the trash successfully'
+        ], 200);
+
+        // IMPORTANT The row is still there in the DB. But because you added the SoftDeletes trait to the Post model, Laravel automatically adds WHERE deleted_at IS NULL to every query — so the post becomes invisible everywhere in your app.
+    }
+
+    public function trashed(Request $request)
+    {
+        // onlyTrashed() → gets only soft deleted posts (where deleted_at is NOT null)
+        return PostResource::collection(Post::onlyTrashed()->where('user_id', $request->user()->id)->with(['user', 'tags', 'images'])->latest('deleted_at')->paginate(5));
+    }
+
+    public function restore(Post $post) {
+        // the restore() set the deleted_at to null
+        $post->restore();
+        return response()->json([
+            'message' => 'Post restored successfully'
+        ], 200);
+    }
+
+    public function forceDelete(Post $post) {
+        $post->forceDelete();
+        return response()->json([
+            'message' => 'Post permanently deleted successfully'
         ], 200);
     }
 }

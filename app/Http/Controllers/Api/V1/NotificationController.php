@@ -19,10 +19,10 @@ class NotificationController extends Controller
 
     public function markAllAsRead(Request $request)
     {
-        $request->user()->unreadNotifications->markAsRead();
+        $request->user()->notifications()->delete();
 
         return response()->json([
-            'message' => "all the messages marked as readed"
+            'message' => "all the notification are deleted"
         ], 200);
     }
 

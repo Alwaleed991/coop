@@ -175,7 +175,7 @@ export default {
         },
 
         async DeleteUserPost() {
-            if (!confirm("Are you sure you want to delete this post?")) {
+            if (!confirm("If you delete this post you can restore it from the trash can")) {
                 return;
             }
 
