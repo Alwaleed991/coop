@@ -13,6 +13,15 @@ use App\Http\Controllers\Api\V1\TagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Report;
+use OpenAI\Laravel\Facades\OpenAI;
+
+
+
+
+
+
+
+
 
 
 Route::get('/user', function (Request $request) {
@@ -23,7 +32,14 @@ Route::get('/user', function (Request $request) {
 Route::prefix('v1')->group(function () {
     Route::post('/register', RegisterController::class);
     Route::post('/login', LoginController::class);
+    Route::get('/test-ai', function () {
+        $response = OpenAI::moderations()->create([
+            'model' => 'omni-moderation-latest',
+            'input' => 'hello world',
+        ]);
 
+        dd($response->results[0]->flagged);
+    });
     // ENHANCE: use api resources
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', LogoutController::class);
