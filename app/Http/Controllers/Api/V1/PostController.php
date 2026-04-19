@@ -12,9 +12,12 @@ use App\Jobs\SendPostCreatedEmail;
 use App\Models\Image;
 use App\Models\Tag;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Services\AIModerator\Facades\OpenAiModerator;
+use Illuminate\Support\Facades\Log;
+
+
 
 
 class PostController extends Controller
@@ -150,6 +153,15 @@ class PostController extends Controller
         DB::beginTransaction();
 
         try {
+
+            $input = $request->title . " " . $request->body;
+            if (OpenAiModerator::Examine_Text_Content($input)['flagged']) {
+                return response()->json([
+                    'message' => 'We apologize, but according to our site policies, your post is considered inappropriate.',
+                ], 422);
+            }
+
+
             $post = Post::create([
                 'user_id' => $request->user()->id,
                 'title' => $request->title,
@@ -185,19 +197,40 @@ class PostController extends Controller
 
     public function storeImages(StoreImageRequest $request, Post $post)
     {
-        $images = $request->images;
+        try {
+            $images = $request->images;
 
-        foreach ($images as $image) {
-            $path = $image->store('postsImages', 'public'); // this the path will be postsImages/randomBylaravel.png
-            Image::create([
-                'imageUrl' => $path,
-                'post_id' => $post->id
-            ]);
+            $result = OpenAiModerator::Examine_Text_Content('', $images);
+
+            if ($result['flagged']) {
+                return response()->json([
+                    'message' => 'We apologize, but according to our site policies, you upload an image thats is considered inappropriate.',
+                ], 422);
+            }
+
+            $imagesPaths = $result['paths'];
+
+            $records = [];
+            foreach ($imagesPaths as $path) {
+                $records[] = [
+                    'imageUrl' => $path,
+                    'post_id' => $post->id
+                ];
+            }
+
+             Image::insert($records);
+
+            return response()->json([
+                'message' => 'Post created successfully',
+                'post' => new PostResource($post->load('tags')),
+            ], 201);
+        } catch (\Exception $e) {
+            Log::info("this is the erorrrrrrrr          ". $e->getMessage());
+            return response()->json([
+                'message' => 'faild to store your post please try again later',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-        return response()->json([
-            'message' => 'Post created successfully',
-            'post' => new PostResource($post->load('tags')),
-        ], 201);
     }
 
     /**
@@ -263,7 +296,8 @@ class PostController extends Controller
         return PostResource::collection(Post::onlyTrashed()->where('user_id', $request->user()->id)->with(['user', 'tags', 'images'])->latest('deleted_at')->paginate(5));
     }
 
-    public function restore(Post $post) {
+    public function restore(Post $post)
+    {
         // the restore() set the deleted_at to null
         $post->restore();
         return response()->json([
@@ -271,7 +305,8 @@ class PostController extends Controller
         ], 200);
     }
 
-    public function forceDelete(Post $post) {
+    public function forceDelete(Post $post)
+    {
         $post->forceDelete();
         return response()->json([
             'message' => 'Post permanently deleted successfully'

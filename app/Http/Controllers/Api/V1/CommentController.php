@@ -11,6 +11,7 @@ use App\Models\Post;
 use App\Notifications\NewCommentNotification;
 use App\Services\AIModerator\Exceptions\ModeratorException;
 use App\Services\AIModerator\Facades\OpenAiModerator;
+use Illuminate\Support\Facades\Log;
 
 class CommentController extends Controller
 {
@@ -36,10 +37,10 @@ class CommentController extends Controller
             $attributes['user_id'] = $userId;
             $attributes['post_id'] = $post->id;
 
-            if(OpenAiModerator::Examine_Text_Content($attributes['body'])) {
+            if(OpenAiModerator::Examine_Text_Content($attributes['body'])['flagged']) {
                 return response()->json([
-                'message' => 'you are sick person go and get psychological teatment',
-            ], 400);
+                'message' => 'We apologize, but according to our site policies, your comment is considered inappropriate.',
+            ], 422);
             }
 
 
@@ -70,8 +71,9 @@ class CommentController extends Controller
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => $e->getMessage(),
-            ], 422);
+                "message" => 'faild to store your comment please try again later',
+                'erorr' => $e->getMessage(),
+            ], 503);
         }
     }
 

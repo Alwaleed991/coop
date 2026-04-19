@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exceptions\Services\AIModerator\Exceptions;
+namespace App\Services\AIModerator\Exceptions;
 
 use Exception;
 
