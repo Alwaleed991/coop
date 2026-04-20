@@ -145,9 +145,8 @@
                     </label>
                     FEAD BACK
                     <ul v-show="selectedFiles.length > 0">
-                        <li v-for="file in selectedFiles"> {{file.name}} </li>
+                        <li v-for="file in selectedFiles">{{ file.name }}</li>
                     </ul>
-
                 </div>
             </div>
         </div>
@@ -253,19 +252,24 @@ export default {
                 } else {
                     if (this.$refs.fileInput.files.length > 0) {
                         const formData = new FormData();
-                        const filesArray = Array.from(this.$refs.fileInput.files);
+                        const filesArray = Array.from(
+                            this.$refs.fileInput.files,
+                        );
                         filesArray.forEach((file) => {
                             formData.append("images[]", file);
                         });
 
-                        const imagesResponse = await fetch(`/api/v1/posts/${data.post.id}/images`, {
-                            method: "POST",
-                            headers: {
-                                Accept: "application/json",
-                                Authorization: `Bearer ${token}`,
+                        const imagesResponse = await fetch(
+                            `/api/v1/posts/${data.post.id}/images`,
+                            {
+                                method: "POST",
+                                headers: {
+                                    Accept: "application/json",
+                                    Authorization: `Bearer ${token}`,
+                                },
+                                body: formData,
                             },
-                            body: formData,
-                        });
+                        );
 
                         const imagesData = await imagesResponse.json();
 
@@ -277,6 +281,16 @@ export default {
                             }
                         } else {
                             //HERE WILL BE THE MANULAY ROLL BACK
+                            await fetch(
+                                `/api/v1/posts/${data.post.id}/force-delete`,
+                                {
+                                    method: "DELETE",
+                                    headers: {
+                                        Accept: "application/json",
+                                        Authorization: `Bearer ${token}`,
+                                    },
+                                },
+                            );
                             this.error = imagesData.message; // the data.message will be post has been safed correctly but we were not able to store your imgaes please try again later
                         }
                     } else {
@@ -321,7 +335,7 @@ export default {
             }
         },
 
-        addToSelectedFiles(){
+        addToSelectedFiles() {
             this.selectedFiles = Array.from(this.$refs.fileInput.files);
         },
 
@@ -342,4 +356,3 @@ export default {
     },
 };
 </script>
-

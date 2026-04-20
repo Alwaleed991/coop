@@ -38,7 +38,7 @@ Route::prefix('v1')->group(function () {
             'input' => 'hello world',
         ]);
 
-        dd($response->results[0]);
+        dd($response->results[0]->flagged);
     });
     // ENHANCE: use api resources
     Route::middleware('auth:sanctum')->group(function () {

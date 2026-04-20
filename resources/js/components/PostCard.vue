@@ -15,8 +15,9 @@
             </span>
         </div>
 
-        <div>
+        <div class="flex gap-8">
             <img
+                class="mt-4 w-36 h-36 rounded-2xl border object-cover transition-all duration-300 ease-in-out hover:scale-110 hover:border-blue-400"
                 v-for="image in post.images"
                 :key="image.id"
                 :src="`http://localhost:8000/storage/${image.imageUrl}`"
@@ -53,29 +54,35 @@ export default {
             type: String,
             required: true,
         },
-        data(){
-            loading = false,
-            error = ''
-        }
+        data() {
+            ((loading = false), (error = ""));
+        },
     },
     methods: {
         async handlePostDeletion(postId) {
-            if (!confirm("If you delete this post it will be deleted permanently!")) {
+            if (
+                !confirm(
+                    "If you delete this post it will be deleted permanently!",
+                )
+            ) {
                 return;
             }
 
             this.loading = true;
             this.error = "";
-            
+
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch(`/api/v1/posts/${postId}/force-delete`, {
-                    method: "Delete",
-                    headers: {
-                        Accept: "application/json",
-                        Authorization: `Bearer ${token}`,
+                const response = await fetch(
+                    `/api/v1/posts/${postId}/force-delete`,
+                    {
+                        method: "Delete",
+                        headers: {
+                            Accept: "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
                     },
-                });
+                );
 
                 const data = await response.json();
 
@@ -98,13 +105,16 @@ export default {
 
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch(`/api/v1/posts/${postId}/restore`, {
-                    method: "PATCH",
-                    headers: {
-                        Accept: "application/json",
-                        Authorization: `Bearer ${token}`,
+                const response = await fetch(
+                    `/api/v1/posts/${postId}/restore`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            Accept: "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
                     },
-                });
+                );
 
                 const data = await response.json();
 

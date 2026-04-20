@@ -8,7 +8,6 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreImageRequest;
 use App\Http\Resources\PostResource;
-use App\Jobs\SendPostCreatedEmail;
 use App\Models\Image;
 use App\Models\Tag;
 use App\Models\User;
@@ -16,9 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Services\AIModerator\Facades\OpenAiModerator;
 use Illuminate\Support\Facades\Log;
-
-
-
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -168,11 +165,14 @@ class PostController extends Controller
                 'body' => $request->body
             ]);
 
-            $tagNames = collect($request->tags)->pluck('name')->toArray();
+            $tagNames = collect($request->tags)->pluck('name')->toArray(); // [veu, node, laravel]
 
-            Tag::insertOrIgnore(
-                collect($tagNames)->map(fn($name) => ['name' => $name])->toArray()
-            );
+            $AssociativeArray = [];
+            foreach ($tagNames as $tagName) {
+                $AssociativeArray[] = ['name' => $tagName];
+            }
+
+            Tag::insertOrIgnore($AssociativeArray);
 
             $tagIds = Tag::whereIn('name', $tagNames)->pluck('id');
 
@@ -218,14 +218,14 @@ class PostController extends Controller
                 ];
             }
 
-             Image::insert($records);
+            Image::insert($records);
 
             return response()->json([
                 'message' => 'Post created successfully',
                 'post' => new PostResource($post->load('tags')),
             ], 201);
         } catch (\Exception $e) {
-            Log::info("this is the erorrrrrrrr          ". $e->getMessage());
+            Log::info("this is the erorrrrrrrr          " . $e->getMessage());
             return response()->json([
                 'message' => 'faild to store your post please try again later',
                 'error' => $e->getMessage(),
@@ -240,26 +240,33 @@ class PostController extends Controller
     {
 
         DB::beginTransaction();
+
         try {
+            $input = $request->title . " " . $request->body;
+
+            if (OpenAiModerator::Examine_Text_Content($input)['flagged']) {
+                return response()->json([
+                    'message' => 'We apologize, but according to our site policies, your post is considered inappropriate.',
+                ], 422);
+            }
             $post->update([
-                'title' => $request->validated()['title'],
-                'body' => $request->validated()['body']
+                'title' => $request->title,
+                'body' => $request->body
             ]);
 
             $tagNames = collect($request->tags)->pluck('name')->toArray();
-            $existingTags = Tag::whereIn('name', $tagNames)->get();
-            $existingTagNames = $existingTags->pluck('name')->toArray();
+            $AssociativeArray = [];
 
-            $newTagNames = array_diff($tagNames, $existingTagNames);
-            $newTags = collect();
-            foreach ($newTagNames as $tagName) {
-                $tag = Tag::create(['name' => $tagName]);
-                $newTags->push($tag);
+            foreach ($tagNames as $tagName) {
+                $AssociativeArray[] = ['name' => $tagName];
             }
 
-            $allTags = $newTags->merge($existingTags);
+            Tag::insertOrIgnore($AssociativeArray);
 
-            $post->tags()->sync($allTags); // sync will go to the pvot table and replace the old tags with the new one so its perfect for update
+            $tagIds = Tag::whereIn('name', $tagNames)->pluck('id');
+
+            $post->tags()->sync($tagIds); // sync will go to the pvot table and replace the old tags with the new one so its perfect for update
+
 
 
             DB::commit();
@@ -307,7 +314,12 @@ class PostController extends Controller
 
     public function forceDelete(Post $post)
     {
+
+        foreach ($post->images as $image) {
+            Storage::disk('public')->delete($image->imageUrl);
+        }
         $post->forceDelete();
+        
         return response()->json([
             'message' => 'Post permanently deleted successfully'
         ], 200);
