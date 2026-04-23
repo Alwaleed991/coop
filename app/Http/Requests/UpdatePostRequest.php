@@ -27,6 +27,8 @@ class UpdatePostRequest extends FormRequest
             'tags' => ['required', 'array'],
             'tags.*' => ['required', 'array'],
             'tags.*.name' => ['required', 'string'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'max:2048'],
         ];
     }
 }

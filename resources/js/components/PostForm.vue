@@ -143,7 +143,7 @@
                             @change="addToSelectedFiles"
                         />
                     </label>
-                    FEAD BACK
+                    FEAD BACKkkk
                     <ul v-show="selectedFiles.length > 0">
                         <li v-for="file in selectedFiles">{{ file.name }}</li>
                     </ul>
@@ -191,6 +191,7 @@ export default {
         };
     },
     mounted() {
+
         this.getAllTags();
     },
     computed: {
@@ -219,30 +220,41 @@ export default {
     },
     methods: {
         async handleSubmit() {
+
+
             this.error = "";
             this.loading = true;
 
             try {
                 const token = localStorage.getItem("token");
 
+                const formData = new FormData();
+                formData.append("title", this.title);
+                formData.append("body", this.body);
+
+                this.selectedTags.forEach((tag, index) => {
+                    formData.append(`tags[${index}][name]`, tag.name);
+                });
+
+                Array.from(this.$refs.fileInput.files).forEach((file) => {
+                    formData.append("images[]", file);
+                });
+
                 const url = this.post
                     ? `/api/v1/posts/${this.post.id}`
                     : "/api/v1/posts";
 
-                const method = this.post ? "PATCH" : "POST";
+                if (this.post) {
+                    formData.append("_method", "PATCH");
+                }
 
                 const response = await fetch(url, {
-                    method: method,
+                    method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
                         Accept: "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({
-                        title: this.title,
-                        body: this.body,
-                        tags: this.selectedTags,
-                    }),
+                    body: formData,
                 });
 
                 const data = await response.json();
@@ -250,55 +262,10 @@ export default {
                 if (!response.ok) {
                     this.error = data.message || "Failed to save post";
                 } else {
-                    if (this.$refs.fileInput.files.length > 0) {
-                        const formData = new FormData();
-                        const filesArray = Array.from(
-                            this.$refs.fileInput.files,
-                        );
-                        filesArray.forEach((file) => {
-                            formData.append("images[]", file);
-                        });
-
-                        const imagesResponse = await fetch(
-                            `/api/v1/posts/${data.post.id}/images`,
-                            {
-                                method: "POST",
-                                headers: {
-                                    Accept: "application/json",
-                                    Authorization: `Bearer ${token}`,
-                                },
-                                body: formData,
-                            },
-                        );
-
-                        const imagesData = await imagesResponse.json();
-
-                        if (imagesResponse.ok) {
-                            this.$emit("success", data);
-                            if (!this.post) {
-                                this.title = "";
-                                this.body = "";
-                            }
-                        } else {
-                            //HERE WILL BE THE MANULAY ROLL BACK
-                            await fetch(
-                                `/api/v1/posts/${data.post.id}/force-delete`,
-                                {
-                                    method: "DELETE",
-                                    headers: {
-                                        Accept: "application/json",
-                                        Authorization: `Bearer ${token}`,
-                                    },
-                                },
-                            );
-                            this.error = imagesData.message; // the data.message will be post has been safed correctly but we were not able to store your imgaes please try again later
-                        }
-                    } else {
-                        this.$emit("success", data);
-                        if (!this.post) {
-                            this.title = "";
-                            this.body = "";
-                        }
+                    this.$emit("success", data);
+                    if (!this.post) {
+                        this.title = "";
+                        this.body = "";
                     }
                 }
             } catch (err) {

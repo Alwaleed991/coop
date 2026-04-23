@@ -32,6 +32,8 @@ class StorePostRequest extends FormRequest
             'tags.*' => ['required', 'array'],
             // 'tags.*.id' => ['required', 'integer'], lool sharif if you read this i can not do this rule because the user may create new tag and that tag have no id is the vaildation will fall
             'tags.*.name' => ['required', 'string'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'max:2048'],
         ];
     }
 }

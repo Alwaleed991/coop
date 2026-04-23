@@ -29,54 +29,6 @@ class PostController extends Controller
     }
 
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store(StorePostRequest $request)
-    // {
-
-    //     DB::beginTransaction(); // Start tracking changes, but DON'T save them yet! From this point, all database changes are TEMPORARY They're in memory, not in the actual database , think of it like (git all)
-
-    //     try {
-    //         $attributes = $request->validated();
-    //         $userId = $request->user()->id;
-
-
-    //         $post = Post::create([
-    //             'user_id' => $userId,
-    //             'title' => $attributes['title'],
-    //             'body' => $attributes['body']
-    //         ]);
-
-    //         $tags = [];
-
-    //         foreach ($request->validated()['tags'] as $tag) { // there is still N+1 problome but we improve it by 40% by extracting the attach out side the loop and we make the logic in one place so there is no attach_tags_to_post($tag['name']) any more 
-
-    //             $tag = Tag::firstOrCreate([
-    //                 'name' => $tag['name']
-    //             ]);
-    //             $tags[] = $tag['id'];
-    //             // $post->attach_tags_to_post($tag['name']);
-    //         }
-
-    //         $post->tags()->attach($tags); // note the attach can recive an array
-
-
-    //         DB::commit(); // Everything worked! Save all changes permanently! in the DB
-
-    //         return response()->json([
-    //             'message' => 'Post created successfully',
-    //             'post' => new PostResource($post->load(['user', 'tags'])),
-    //         ], 201);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack(); // Something failed! Undo EVERYTHING! and go back on how the database where it was 
-    //         return response()->json([
-    //             'message' => 'faild to create your post please try again later',
-    //             'error' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
     public function usersPosts(User $user)
     {
 
@@ -93,66 +45,22 @@ class PostController extends Controller
     }
 
 
-
-    // public function store(StorePostRequest $request)
-    // {
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $post = Post::create([
-    //             'user_id' => $request->user()->id,
-    //             'title' => $request->title,
-    //             'body' => $request->body,
-    //         ]);
-
-
-    //         // Get all tag names
-    //         $tagNames = collect($request->tags)->pluck('name')->toArray(); // now here collect($request->tags) this will create collection of assositive array and we will pluck the name so it will create an collection of strings becouse name is string and then we will preform toArray() to return normal array 
-    //         // Find existing tags (ONE query)
-    //         $existingTags = Tag::whereIn('name', $tagNames)->get(); // where() -> SELECT * FROM tags WHERE name = 'Laravel' AND whereIn() -> SELECT * FROM tags WHERE name IN ('Laravel', 'PHP', 'Vue') and note the $existingTags will be a collection becuse we get them from the Tag::class
-    //         $existingTagNames = $existingTags->pluck('name')->toArray();
-
-    //         // Find new tag names
-    //         $newTagNames = array_diff($tagNames, $existingTagNames); //array_diff() finds items in the FIRST array that are NOT in the SECOND array!
-
-    //         // Create new tags
-    //         $newTags = collect();
-    //         foreach ($newTagNames as $tagName) {  // if the $newTagNames was empty this for loop will mot run
-    //             $tag = Tag::create(['name' => $tagName]);
-    //             $newTags->push($tag); // the push here is the way to append to collection 
-    //         }
-
-    //         // Combine and attach
-    //         $allTags = $existingTags->merge($newTags);
-    //         $post->tags()->attach($allTags->pluck('id'));
-
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'message' => 'Post created successfully',
-    //             'post' => new PostResource($post->load('tags')),
-    //         ], 201);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         return response()->json([
-    //             'message' => 'Failed to create your post. Please try again later.',
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
-
-
     public function store(StorePostRequest $request)
     {
         DB::beginTransaction();
 
         try {
 
-            $input = $request->title . " " . $request->body;
-            if (OpenAiModerator::Examine_Text_Content($input)['flagged']) {
+            $textInput = $request->title . " " . $request->body;
+            $imageInput = $request->images ?? [];
+            Log::info('thisss is the imagess' . json_encode($imageInput));
+
+            $result = OpenAiModerator::Examine_Text_Content($textInput, $imageInput);
+            $records = [];
+
+
+
+            if ($result['flagged']) {
                 return response()->json([
                     'message' => 'We apologize, but according to our site policies, your post is considered inappropriate.',
                 ], 422);
@@ -164,6 +72,17 @@ class PostController extends Controller
                 'title' => $request->title,
                 'body' => $request->body
             ]);
+
+            $imagesPaths = $result['paths'];
+
+            foreach ($imagesPaths as $path) {
+                $records[] = [
+                    'imageUrl' => $path,
+                    'post_id' => $post->id
+                ];
+            }
+
+            Image::insert($records);
 
             $tagNames = collect($request->tags)->pluck('name')->toArray(); // [veu, node, laravel]
 
@@ -195,44 +114,7 @@ class PostController extends Controller
         }
     }
 
-    public function storeImages(StoreImageRequest $request, Post $post)
-    {
-        try {
-            $images = $request->images;
-
-            $result = OpenAiModerator::Examine_Text_Content('', $images);
-
-            if ($result['flagged']) {
-                return response()->json([
-                    'message' => 'We apologize, but according to our site policies, you upload an image thats is considered inappropriate.',
-                ], 422);
-            }
-
-            $imagesPaths = $result['paths'];
-
-            $records = [];
-            foreach ($imagesPaths as $path) {
-                $records[] = [
-                    'imageUrl' => $path,
-                    'post_id' => $post->id
-                ];
-            }
-
-            Image::insert($records);
-
-            return response()->json([
-                'message' => 'Post created successfully',
-                'post' => new PostResource($post->load('tags')),
-            ], 201);
-        } catch (\Exception $e) {
-            Log::info("this is the erorrrrrrrr          " . $e->getMessage());
-            return response()->json([
-                'message' => 'faild to store your post please try again later',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
+ 
     /**
      * Update the specified resource in storage.
      */
@@ -314,12 +196,14 @@ class PostController extends Controller
 
     public function forceDelete(Post $post)
     {
-
+        $paths = [];
         foreach ($post->images as $image) {
-            Storage::disk('public')->delete($image->imageUrl);
-        }
-        $post->forceDelete();
+         $paths[] = $image->imageUrl;
+        }         
         
+        Storage::disk('public')->delete($paths);
+        $post->forceDelete();
+
         return response()->json([
             'message' => 'Post permanently deleted successfully'
         ], 200);
