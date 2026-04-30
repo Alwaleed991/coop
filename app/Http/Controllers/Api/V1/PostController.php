@@ -6,7 +6,6 @@ use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreImageRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Image;
 use App\Models\Tag;
@@ -16,6 +15,13 @@ use Illuminate\Http\Request;
 use App\Services\AIModerator\Facades\OpenAiModerator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Pipelines\Posts\StorePostPayload;
+use App\Pipelines\Posts\AttachTags;
+use App\Pipelines\Posts\ModerateWithAI;
+use App\Pipelines\Posts\SaveImages;
+use App\Pipelines\Posts\SavePost;
+use App\Pipelines\Posts\ValidatePostInput;
+use Illuminate\Support\Facades\Pipeline;
 
 class PostController extends Controller
 {
@@ -51,52 +57,24 @@ class PostController extends Controller
 
         try {
 
-            $textInput = $request->title . " " . $request->body;
-            $imageInput = $request->images ?? [];
-            Log::info('thisss is the imagess' . json_encode($imageInput));
+            $payload = new StorePostPayload(
+                userId: $request->user()->id,
+                title: $request->title,
+                body: $request->body,
+                images: $request->images,
+                imagesPaths: [],
+                tags: $request->tags,
+                post: null,
+            );
 
-            $result = OpenAiModerator::Examine_Text_Content($textInput, $imageInput);
-            $records = [];
-
-
-
-            if ($result['flagged']) {
-                return response()->json([
-                    'message' => 'We apologize, but according to our site policies, your post is considered inappropriate.',
-                ], 422);
-            }
-
-
-            $post = Post::create([
-                'user_id' => $request->user()->id,
-                'title' => $request->title,
-                'body' => $request->body
-            ]);
-
-            $imagesPaths = $result['paths'];
-
-            foreach ($imagesPaths as $path) {
-                $records[] = [
-                    'imageUrl' => $path,
-                    'post_id' => $post->id
-                ];
-            }
-
-            Image::insert($records);
-
-            $tagNames = collect($request->tags)->pluck('name')->toArray(); // [veu, node, laravel]
-
-            $AssociativeArray = [];
-            foreach ($tagNames as $tagName) {
-                $AssociativeArray[] = ['name' => $tagName];
-            }
-
-            Tag::insertOrIgnore($AssociativeArray);
-
-            $tagIds = Tag::whereIn('name', $tagNames)->pluck('id');
-
-            $post->tags()->attach($tagIds);
-
+            $post = Pipeline::send($payload)  
+                ->through([
+                    ModerateWithAI::class,
+                    SavePost::class,
+                    SaveImages::class,
+                    AttachTags::class,
+                ])
+                ->then(fn(StorePostPayload $payload) => $payload->post); // ->then() is basically: "all pipes passed, now what do you want back? i chose $payload->post to store it in the " 
 
             DB::commit();
 
@@ -108,13 +86,12 @@ class PostController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'message' => 'Failed to create your post. Please try again later.',
-                'error' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
 
- 
+
     /**
      * Update the specified resource in storage.
      */
@@ -198,9 +175,9 @@ class PostController extends Controller
     {
         $paths = [];
         foreach ($post->images as $image) {
-         $paths[] = $image->imageUrl;
-        }         
-        
+            $paths[] = $image->imageUrl;
+        }
+
         Storage::disk('public')->delete($paths);
         $post->forceDelete();
 
