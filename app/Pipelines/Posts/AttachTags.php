@@ -4,6 +4,7 @@ namespace App\Pipelines\Posts;
 
 use Closure;
 use App\Models\Tag;
+use Elastic\Elasticsearch\ClientBuilder;
 
 
 
@@ -36,6 +37,19 @@ class AttachTags
         $tagIds = Tag::whereIn('name', $tagNames)->pluck('id');
 
         $payload->post->tags()->attach($tagIds);
+
+        $client = ClientBuilder::create()
+            ->setHosts([env('ELASTICSEARCH_HOST') . ':' . env('ELASTICSEARCH_PORT')])
+            ->build();
+
+        $client->index([
+            'index' => 'posts',
+            'id'    => $payload->post->id,
+            'body'  => [
+                'title' => $payload->post->title,
+                'body'  => $payload->post->body,
+            ]
+        ]);
 
         return $next($payload);
     }
