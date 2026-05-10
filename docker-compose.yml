@@ -9,9 +9,9 @@ services:
     volumes:
       - .:/var/www
       #  this will link your project folder (in the host machine) with /var/www inside container
-      - /var/www/vendor
-      #  “This folder is an exception. Do NOT take it from the host. it will be filed by composer install (also for the - /var/www/node_modules )” Ahmed clones the repo → no vendor/ on his machine (same as your fresh clone scenario)He runs docker compose up → container builds vendor/ with Linux binaries → because of - .:/var/www, that vendor/ now appears on his host Mac machine Now Ahmed wants IDE autocomplete, so he runs composer install locally on his Mac This overwrites the vendor/ folder on his host with Mac binaries He runs docker compose up again (without --build, just a restart) Docker mounts his Mac vendor/ into the container 💥 Crash
-      - /var/www/node_modules
+      # - /var/www/vendor
+      # #  “This folder is an exception. Do NOT take it from the host. it will be filed by composer install (also for the - /var/www/node_modules )” Ahmed clones the repo → no vendor/ on his machine (same as your fresh clone scenario)He runs docker compose up → container builds vendor/ with Linux binaries → because of - .:/var/www, that vendor/ now appears on his host Mac machine Now Ahmed wants IDE autocomplete, so he runs composer install locally on his Mac This overwrites the vendor/ folder on his host with Mac binaries He runs docker compose up again (without --build, just a restart) Docker mounts his Mac vendor/ into the container 💥 Crash
+      # - /var/www/node_modules
     command: sh -c "composer install && npm install && npm run build && chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache && php-fpm"
     
     # why when we right into the vendor file in the container by composer install does not require premition but when we want to wright in the storage its requuired premition ?
