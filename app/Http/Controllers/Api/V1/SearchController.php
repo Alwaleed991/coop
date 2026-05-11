@@ -8,6 +8,8 @@ use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Support\Facades\Log;
 use Elastic\Elasticsearch\ClientBuilder;
+use App\Services\ES\Facades\EsFacade;
+
 
 
 class SearchController extends Controller
@@ -17,28 +19,14 @@ class SearchController extends Controller
      */
     public function __invoke(Request $request)
     {
-                    Log::info('we are in baby');
 
         try {
             $request->validate([
                 'keyWord' => ['required', 'string']
             ]);
 
-            $client = ClientBuilder::create()
-                ->setHosts([env('ELASTICSEARCH_HOST') . ':' . env('ELASTICSEARCH_PORT')])
-                ->build();
-
-            $result = $client->search([
-                'index' => 'posts',
-                'body'  => [
-                    'query' => [
-                        'multi_match' => [
-                            'query'  => $request->keyWord,
-                            'fields' => ['title', 'body']
-                        ]
-                    ]
-                ]
-            ]);
+           
+            $result = EsFacade::search($request->keyWord);
 
             $hits = $result->asArray()['hits']['hits'];
 

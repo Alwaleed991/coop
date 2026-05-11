@@ -4,9 +4,9 @@ namespace App\Pipelines\Posts;
 
 use Closure;
 use App\Models\Tag;
+use App\Services\ES\Facades\EsFacade;
 use Elastic\Elasticsearch\ClientBuilder;
-
-
+use Illuminate\Support\Facades\Log;
 
 
 
@@ -38,18 +38,10 @@ class AttachTags
 
         $payload->post->tags()->attach($tagIds);
 
-        $client = ClientBuilder::create()
-            ->setHosts([env('ELASTICSEARCH_HOST') . ':' . env('ELASTICSEARCH_PORT')])
-            ->build();
+         
 
-        $client->index([
-            'index' => 'posts',
-            'id'    => $payload->post->id,
-            'body'  => [
-                'title' => $payload->post->title,
-                'body'  => $payload->post->body,
-            ]
-        ]);
+         EsFacade::index($payload->post->id,$payload->post->body,$payload->post->title);
+        
 
         return $next($payload);
     }
