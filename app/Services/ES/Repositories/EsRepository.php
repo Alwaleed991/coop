@@ -5,7 +5,7 @@ namespace App\Services\ES\Repositories;
 use App\Services\ES\Client\EsClient;
 use Illuminate\Support\Facades\Log;
 use Elastic\Elasticsearch\Client;
-
+use App\Jobs\IndexPostJob;
 
 class EsRepository
 {
@@ -31,7 +31,8 @@ public Client $client;
                     'query' => [
                         'multi_match' => [
                             'query'  => $query,
-                            'fields' => ['title', 'body']
+                            'fields' => ['title', 'body'],
+                            'fuzziness' => 'AUTO'
                         ]
                     ]
                 ]
@@ -49,14 +50,17 @@ public Client $client;
     
     Log::info('we are in baby the repo');
 
-        $this->client->index([
-            'index' => 'posts',
-            'id'    => $id,
-            'body'  => [
-                'title' => $title,
-                'body'  => $body,
-            ]
-        ]);
+
+
+        dispatch(new IndexPostJob($id, $title, $body));
+        // $this->client->index([
+        //     'index' => 'posts',
+        //     'id'    => $id,
+        //     'body'  => [
+        //         'title' => $title,
+        //         'body'  => $body,
+        //     ]
+        // ]);
     }
 
 

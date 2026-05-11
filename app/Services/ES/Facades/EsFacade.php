@@ -21,4 +21,10 @@ class EsFacade extends Facade
         return EsInterface::class;
     }
 
+
+
+    //note: this EsFacade::index() internally becomes something like: app(EsInterface::class)->index()
+
+
+
 }
