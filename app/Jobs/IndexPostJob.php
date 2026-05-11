@@ -33,8 +33,6 @@ class IndexPostJob implements ShouldQueue
         ]);
     }
      
-    // chat method 
-    //
+    
 }
 
-// chating
