@@ -37,4 +37,4 @@ class IndexPostJob implements ShouldQueue
     //
 }
 
-// chatbot
+// chating
